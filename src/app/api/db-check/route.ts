@@ -4,7 +4,7 @@ import { createClient } from "@/lib/supabase/server";
 export async function GET() {
   try {
     const supabase = await createClient();
-    const { data, error } = await supabase.from("_dummy").select("*").limit(1);
+    const { error } = await supabase.from("_dummy").select("*").limit(1);
     
     if (error && error.code !== "PGRST116") {
       throw error;

@@ -51,7 +51,7 @@ export async function GET() {
     
     // Get product counts per category (for display)
     const categoryIds = categories?.map(c => c.id) || [];
-    let productCounts: Record<string, number> = {};
+    const productCounts: Record<string, number> = {};
     
     if (categoryIds.length > 0) {
       const { data: counts } = await supabase
