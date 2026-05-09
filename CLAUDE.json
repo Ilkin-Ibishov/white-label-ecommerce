@@ -10,7 +10,8 @@
       "styling": "TailwindCSS + shadcn/ui",
       "backend": "Supabase",
       "state": "TanStack Query",
-      "testing": "Vitest + Playwright"
+      "testing": "Vitest + Playwright",
+      "mcp_tools": ["supabase", "github"]
     }
   },
   "agents": {
@@ -32,7 +33,11 @@
     "deployment": "every_pr_production",
     "state_management": "tanstack_query_only",
     "images": "supabase_storage",
-    "payment": "simple_pay_on_delivery"
+    "payment": "simple_pay_on_delivery",
+    "mcp_capabilities": {
+      "supabase": ["execute_sql", "list_tables", "apply_migrations", "check_advisors"],
+      "github": ["update_project", "create_pr", "check_status"]
+    }
   },
   "layer_0_always_loaded": {
     "sprint": "1.1",
@@ -42,7 +47,13 @@
       "gamma": "ci-cd-pipeline"
     },
     "hour_1_complete": true,
-    "production_url": "https://white-label-ecommerce-kappa.vercel.app"
+    "production_url": "https://white-label-ecommerce-kappa.vercel.app",
+    "supabase_project": {
+      "id": "foiktbisxazqxztbammn",
+      "name": "E-commerce Prototype",
+      "status": "ACTIVE_HEALTHY",
+      "mcp_connected": true
+    }
   },
   "directory_structure": {
     "stages": "stages/{agent}/{stage}/context.json",
