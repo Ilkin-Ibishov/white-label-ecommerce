@@ -1,0 +1,93 @@
+{
+  "title": "Sprint 1.1 — Foundation",
+  "description": "White-label e-commerce foundation phase. Auth system, product schema, CI/CD pipeline.",
+  "visibility": "public",
+  "template": "feature",
+  "fields": [
+    {
+      "name": "Agent",
+      "type": "single_select",
+      "options": [
+        { "name": "Alpha", "color": "blue" },
+        { "name": "Beta", "color": "green" },
+        { "name": "Gamma", "color": "purple" },
+        { "name": "SEC", "color": "red" },
+        { "name": "ARCH", "color": "yellow" },
+        { "name": "UX", "color": "pink" }
+      ]
+    },
+    {
+      "name": "Status",
+      "type": "single_select",
+      "options": [
+        { "name": "📋 Backlog", "color": "gray" },
+        { "name": "🟡 In Progress", "color": "yellow" },
+        { "name": "⏳ In Review", "color": "blue" },
+        { "name": "✅ Done", "color": "green" },
+        { "name": "🚫 Blocked", "color": "red" }
+      ]
+    },
+    {
+      "name": "Gatekeeper",
+      "type": "single_select",
+      "options": [
+        { "name": "None", "color": "gray" },
+        { "name": "SEC", "color": "red" },
+        { "name": "ARCH", "color": "yellow" },
+        { "name": "UX", "color": "pink" }
+      ]
+    },
+    {
+      "name": "Sprint",
+      "type": "iteration",
+      "options": [
+        { "name": "Sprint 1.1", "start_date": "2026-05-09", "duration": 7 },
+        { "name": "Sprint 1.2", "start_date": "2026-05-16", "duration": 7 }
+      ]
+    },
+    {
+      "name": "Phase",
+      "type": "single_select",
+      "options": [
+        { "name": "1-Foundation", "color": "blue" },
+        { "name": "2-Core Commerce", "color": "green" },
+        { "name": "3-Customer Experience", "color": "yellow" },
+        { "name": "4-Admin Dashboard", "color": "orange" },
+        { "name": "5-White-Label", "color": "purple" },
+        { "name": "6-Production", "color": "red" }
+      ]
+    }
+  ],
+  "items": [
+    {
+      "title": "✅ Hour 1 Scaffold (Gamma)",
+      "agent": "Gamma",
+      "status": "✅ Done",
+      "phase": "1-Foundation",
+      "body": "Next.js 16 + shadcn/ui scaffold\nProduction: https://white-label-ecommerce-kappa.vercel.app"
+    },
+    {
+      "title": "🔐 Auth System Scaffold (Alpha)",
+      "agent": "Alpha",
+      "status": "📋 Backlog",
+      "phase": "1-Foundation",
+      "gatekeeper": "SEC",
+      "body": "Supabase Auth, users table, RLS policies, login page\nContext: stages/alpha/01-auth-scaffold/CONTEXT.md"
+    },
+    {
+      "title": "📦 Product Catalog Schema (Beta)",
+      "agent": "Beta",
+      "status": "📋 Backlog",
+      "phase": "1-Foundation",
+      "gatekeeper": "ARCH",
+      "body": "Products/categories tables, 10k synthetic data, API routes\nContext: stages/beta/01-product-schema/CONTEXT.md"
+    },
+    {
+      "title": "🚀 CI/CD Pipeline (Gamma)",
+      "agent": "Gamma",
+      "status": "📋 Backlog",
+      "phase": "1-Foundation",
+      "body": "GitHub Actions, branch protection, auto-deploy"
+    }
+  ]
+}
