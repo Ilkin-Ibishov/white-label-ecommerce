@@ -18,8 +18,10 @@
     "build": "✅ Success",
     "github": "✅ Pushed to origin/main",
     "deployment": "✅ LIVE ON VERCEL",
+    "dashboard": "✅ GitHub Project ready",
     "production_url": "https://white-label-ecommerce-iy5t5j9qw-ilkin-ibishovs-projects.vercel.app",
-    "repo_url": "https://github.com/Ilkin-Ibishov/white-label-ecommerce"
+    "repo_url": "https://github.com/Ilkin-Ibishov/white-label-ecommerce",
+    "project_url": "https://github.com/users/Ilkin-Ibishov/projects/3"
   },
   "time_capsule_commit": "f917da8"
 }
