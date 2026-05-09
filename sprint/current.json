@@ -6,25 +6,30 @@
   "parallel_start": "2026-05-10T02:20:00+04:00",
   "focus_agents": {
     "alpha": { 
-      "status": "assigned", 
+      "status": "in_progress", 
       "task": "Cart system + checkout flow",
       "started": "2026-05-10T02:20:00+04:00",
-      "checkpoint": "cart_api",
-      "eta": "72h"
+      "checkpoint": "cart_api_complete",
+      "eta": "72h",
+      "db_tables": ["cart_items", "checkout_sessions"],
+      "api_routes": ["/api/cart", "/api/checkout"]
     },
     "beta": { 
-      "status": "assigned", 
+      "status": "in_progress", 
       "task": "Order management + pay on delivery",
       "started": "2026-05-10T02:20:00+04:00",
-      "checkpoint": "order_schema",
-      "eta": "72h"
+      "checkpoint": "orders_api_complete",
+      "eta": "72h",
+      "db_tables": ["orders", "order_items"],
+      "api_routes": ["/api/orders"]
     },
     "gamma": { 
-      "status": "assigned", 
+      "status": "delegated_to_devin", 
       "task": "Frontend UI (product pages, cart, checkout)",
-      "started": "2026-05-10T02:20:00+04:00",
-      "checkpoint": "product_detail_ui",
-      "eta": "72h"
+      "delegated": "2026-05-10T02:22:00+04:00",
+      "checkpoint": "devin_pr_submitted",
+      "eta": "8h",
+      "delegation_prompt": "DEVIN-GAMMA-UI-DELEGATION.md"
     }
   },
   "gatekeepers": {
