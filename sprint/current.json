@@ -1,0 +1,17 @@
+{
+  "sprint": "1.1",
+  "phase": "Foundation",
+  "dates": { "start": "2026-05-09", "end": "2026-05-16" },
+  "focus_agents": {
+    "alpha": { "status": "active", "task": "Auth system scaffold" },
+    "beta": { "status": "active", "task": "Product catalog schema" },
+    "gamma": { "status": "active", "task": "CI/CD + scaffold deployment" }
+  },
+  "gatekeepers": {
+    "sec": { "pending_reviews": 0 },
+    "arch": { "pending_reviews": 0 },
+    "ux": { "pending_reviews": 0 }
+  },
+  "blockers": [],
+  "time_capsule_commit": null
+}
