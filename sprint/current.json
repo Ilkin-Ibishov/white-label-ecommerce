@@ -1,53 +1,38 @@
 {
-  "sprint": "1.1",
-  "phase": "Foundation",
-  "dates": { "start": "2026-05-09", "end": "2026-05-16" },
+  "sprint": "1.2",
+  "phase": "Core Commerce",
+  "dates": { "start": "2026-05-10", "end": "2026-05-17" },
   "execution_mode": "parallel",
-  "parallel_start": "2026-05-10T01:25:00+04:00",
+  "parallel_start": "2026-05-10T02:20:00+04:00",
   "focus_agents": {
     "alpha": { 
-      "status": "complete", 
-      "task": "Auth system scaffold",
-      "started": "2026-05-10T01:25:00+04:00",
-      "completed": "2026-05-10T02:00:00+04:00",
-      "branch": "alpha-db",
-      "pr": "https://github.com/Ilkin-Ibishov/white-label-ecommerce/pull/new/alpha-db"
+      "status": "assigned", 
+      "task": "Cart system + checkout flow",
+      "started": "2026-05-10T02:20:00+04:00",
+      "checkpoint": "cart_api",
+      "eta": "72h"
     },
     "beta": { 
-      "status": "complete", 
-      "task": "Product catalog schema",
-      "started": "2026-05-10T01:25:00+04:00",
-      "completed": "2026-05-10T02:15:00+04:00",
-      "branch": "beta-db",
-      "pr": "https://github.com/Ilkin-Ibishov/white-label-ecommerce/pull/new/beta-db"
+      "status": "assigned", 
+      "task": "Order management + pay on delivery",
+      "started": "2026-05-10T02:20:00+04:00",
+      "checkpoint": "order_schema",
+      "eta": "72h"
     },
     "gamma": { 
-      "status": "complete", 
-      "task": "CI/CD pipeline",
-      "delegated": "2026-05-10T01:48:00+04:00",
-      "completed": "2026-05-10T02:18:00+04:00",
-      "branch": "gamma-db",
-      "pr": "https://github.com/Ilkin-Ibishov/white-label-ecommerce/pull/1",
-      "ci_status": "9_checks_green",
-      "branch_protection": "deferred"
+      "status": "assigned", 
+      "task": "Frontend UI (product pages, cart, checkout)",
+      "started": "2026-05-10T02:20:00+04:00",
+      "checkpoint": "product_detail_ui",
+      "eta": "72h"
     }
   },
   "gatekeepers": {
-    "sec": { "pending_reviews": 0, "next_review": "alpha_rls_policies" },
-    "arch": { "pending_reviews": 0, "next_review": "beta_schema_design" },
-    "ux": { "pending_reviews": 0, "next_review": null }
+    "sec": { "pending_reviews": 0, "next_review": "cart_rls" },
+    "arch": { "pending_reviews": 0, "next_review": "order_schema_design" },
+    "ux": { "pending_reviews": 0, "next_review": "checkout_flow" }
   },
   "blockers": [],
-  "hour_1_status": {
-    "scaffold": "✅ Complete",
-    "build": "✅ Success",
-    "github": "✅ Pushed to origin/main",
-    "deployment": "✅ LIVE ON VERCEL",
-    "dashboard": "✅ GitHub Project ready",
-    "production_url": "https://white-label-ecommerce-iy5t5j9qw-ilkin-ibishovs-projects.vercel.app",
-    "repo_url": "https://github.com/Ilkin-Ibishov/white-label-ecommerce",
-    "project_url": "https://github.com/users/Ilkin-Ibishov/projects/3"
-  },
   "sprint_1_1_status": {
     "phase": "Foundation",
     "status": "✅ COMPLETE",
@@ -56,14 +41,19 @@
       "alpha": "auth_system_delivered",
       "beta": "product_catalog_2k_delivered",
       "gamma": "ci_cd_pipeline_delivered"
-    },
-    "deliverables": [
-      "Supabase auth with RLS",
-      "2,000 products in database",
-      "API routes (products, categories, auth)",
-      "CI/CD with 9 green checks",
-      "Playwright E2E tests"
-    ]
+    }
   },
-  "next_sprint": "1.2_Core_Commerce"
+  "sprint_1_2_scope": {
+    "goal": "Customer can browse products, add to cart, checkout with pay-on-delivery",
+    "features": [
+      "Product detail page UI",
+      "Category browsing",
+      "Cart (add, update, remove)",
+      "Checkout flow (shipping, payment method)",
+      "Pay on delivery integration",
+      "Order creation",
+      "Order history",
+      "Admin order management"
+    ]
+  }
 }

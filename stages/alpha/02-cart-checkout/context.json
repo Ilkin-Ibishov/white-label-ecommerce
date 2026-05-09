@@ -1,0 +1,61 @@
+{
+  "agent": "alpha",
+  "sprint": "1.2",
+  "stage": "02-cart-checkout",
+  "goal": "cart-api-checkout-flow-session",
+  "inputs": [
+    { "source": "sprint_1_1", "file": "sprint/current.json", "section": "sprint_1_1_status" },
+    { "source": "auth_system", "file": "supabase/migrations/alpha", "section": "users_rls" },
+    { "source": "products", "file": "supabase/migrations/beta", "section": "products_schema" }
+  ],
+  "tasks": [
+    {
+      "id": "A7",
+      "action": "create_cart_table",
+      "details": "session_based_cart_items",
+      "fields": ["id", "session_id", "product_id", "quantity", "added_at"],
+      "rls": "anon_can_modify_own_session",
+      "output": "supabase/migrations/alpha/03_cart.sql"
+    },
+    {
+      "id": "A8",
+      "action": "create_cart_api",
+      "routes": [
+        { "method": "POST", "path": "/api/cart/add", "purpose": "add_to_cart" },
+        { "method": "PUT", "path": "/api/cart/update", "purpose": "update_quantity" },
+        { "method": "DELETE", "path": "/api/cart/remove", "purpose": "remove_item" },
+        { "method": "GET", "path": "/api/cart", "purpose": "get_cart_items" }
+      ],
+      "output": "src/app/api/cart/*.ts"
+    },
+    {
+      "id": "A9",
+      "action": "create_checkout_session",
+      "details": "shipping_address_payment_method",
+      "fields": ["session_id", "shipping_address", "contact_phone", "payment_method", "total_amount"],
+      "output": "supabase/migrations/alpha/04_checkout_session.sql"
+    },
+    {
+      "id": "A10",
+      "action": "create_checkout_api",
+      "routes": [
+        { "method": "POST", "path": "/api/checkout/init", "purpose": "start_checkout" },
+        { "method": "POST", "path": "/api/checkout/shipping", "purpose": "save_shipping" },
+        { "method": "POST", "path": "/api/checkout/confirm", "purpose": "confirm_order" }
+      ],
+      "output": "src/app/api/checkout/*.ts"
+    }
+  ],
+  "checkpoints": [
+    { "after": "A8", "verify": "cart_api_test" },
+    { "after": "A10", "verify": "checkout_flow_test" }
+  ],
+  "definition_of_done": [
+    "cart_persists_across_page_reloads",
+    "cart_api_add_update_remove_works",
+    "checkout_captures_shipping_address",
+    "checkout_calculates_total_correctly",
+    "handoff_doc_written"
+  ],
+  "handoff_location": "handoffs/alpha-2026-05-10-sprint-1-2.json"
+}

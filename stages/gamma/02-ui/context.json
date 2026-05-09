@@ -1,0 +1,64 @@
+{
+  "agent": "gamma",
+  "sprint": "1.2",
+  "stage": "02-ui",
+  "goal": "frontend-ui-product-pages-cart-checkout",
+  "inputs": [
+    { "source": "sprint_1_1", "file": "sprint/current.json", "section": "sprint_1_1_status" },
+    { "source": "product_api", "file": "src/app/api/products", "section": "routes" },
+    { "source": "cart_api", "file": "stages/alpha/02-cart-checkout/context.json", "section": "cart_api" },
+    { "source": "checkout_api", "file": "stages/alpha/02-cart-checkout/context.json", "section": "checkout_api" }
+  ],
+  "tasks": [
+    {
+      "id": "G6",
+      "action": "create_product_detail_page",
+      "details": "product_info_images_add_to_cart",
+      "output": "src/app/(shop)/products/[slug]/page.tsx"
+    },
+    {
+      "id": "G7",
+      "action": "create_category_browse_page",
+      "details": "product_grid_filters_pagination",
+      "output": "src/app/(shop)/category/[slug]/page.tsx"
+    },
+    {
+      "id": "G8",
+      "action": "create_cart_page",
+      "details": "cart_items_quantity_update_remove_checkout_button",
+      "output": "src/app/(shop)/cart/page.tsx"
+    },
+    {
+      "id": "G9",
+      "action": "create_checkout_page",
+      "details": "shipping_form_payment_method_order_summary",
+      "output": "src/app/(shop)/checkout/page.tsx"
+    },
+    {
+      "id": "G10",
+      "action": "create_order_success_page",
+      "details": "confirmation_order_details",
+      "output": "src/app/(shop)/order/success/page.tsx"
+    },
+    {
+      "id": "G11",
+      "action": "create_header_cart_component",
+      "details": "cart_icon_item_count_mini_cart_preview",
+      "output": "src/components/cart/HeaderCart.tsx"
+    }
+  ],
+  "checkpoints": [
+    { "after": "G6", "verify": "product_page_ui_review" },
+    { "after": "G9", "verify": "checkout_flow_e2e" }
+  ],
+  "definition_of_done": [
+    "product_detail_page_shows_info_images",
+    "add_to_cart_button_works",
+    "cart_page_shows_items_total",
+    "checkout_collects_shipping_payment",
+    "order_success_shows_confirmation",
+    "header_shows_cart_count",
+    "handoff_doc_written"
+  ],
+  "handoff_location": "handoffs/gamma-2026-05-10-sprint-1-2.json"
+}

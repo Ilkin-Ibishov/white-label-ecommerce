@@ -1,0 +1,65 @@
+{
+  "agent": "beta",
+  "sprint": "1.2",
+  "stage": "02-orders",
+  "goal": "orders-pay-on-delivery-admin-management",
+  "inputs": [
+    { "source": "sprint_1_1", "file": "sprint/current.json", "section": "sprint_1_1_status" },
+    { "source": "products", "file": "supabase/migrations/beta", "section": "products_schema" },
+    { "source": "checkout", "file": "stages/alpha/02-cart-checkout/context.json", "section": "checkout_session" }
+  ],
+  "tasks": [
+    {
+      "id": "B6",
+      "action": "create_orders_schema",
+      "tables": [
+        {
+          "name": "orders",
+          "fields": ["id", "customer_email", "customer_phone", "shipping_address", "total_amount", "payment_method", "status", "created_at", "updated_at"],
+          "statuses": ["pending", "confirmed", "processing", "shipped", "delivered", "cancelled"]
+        },
+        {
+          "name": "order_items",
+          "fields": ["id", "order_id", "product_id", "product_name", "price_cents", "quantity"]
+        }
+      ],
+      "output": "supabase/migrations/beta/03_orders.sql"
+    },
+    {
+      "id": "B7",
+      "action": "create_orders_rls",
+      "patterns": ["user_sees_own_orders", "admin_sees_all"],
+      "output": "supabase/migrations/beta/04_orders_rls.sql"
+    },
+    {
+      "id": "B8",
+      "action": "create_order_api",
+      "routes": [
+        { "method": "POST", "path": "/api/orders", "purpose": "create_order_from_checkout" },
+        { "method": "GET", "path": "/api/orders", "purpose": "list_user_orders" },
+        { "method": "GET", "path": "/api/orders/[id]", "purpose": "order_detail" },
+        { "method": "PATCH", "path": "/api/orders/[id]/status", "purpose": "admin_update_status" }
+      ],
+      "output": "src/app/api/orders/*.ts"
+    },
+    {
+      "id": "B9",
+      "action": "create_pay_on_delivery",
+      "details": "payment_method_enum_cash_on_delivery",
+      "output": "src/lib/payment/pay-on-delivery.ts"
+    }
+  ],
+  "checkpoints": [
+    { "after": "B6", "verify": "schema_arch_review" },
+    { "after": "B8", "verify": "order_api_test" }
+  ],
+  "definition_of_done": [
+    "order_created_from_checkout",
+    "order_stores_line_items",
+    "user_sees_own_order_history",
+    "admin_can_update_order_status",
+    "pay_on_delivery_option_available",
+    "handoff_doc_written"
+  ],
+  "handoff_location": "handoffs/beta-2026-05-10-sprint-1-2.json"
+}
