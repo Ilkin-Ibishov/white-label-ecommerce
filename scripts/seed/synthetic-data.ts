@@ -25,7 +25,7 @@ const CONFIG = {
     hierarchyDepth: 3, // 0 = root, 1, 2
   },
   products: {
-    count: 10000,
+    count: 2000,
     imagesPerProduct: { min: 1, max: 5 },
   },
   priceRange: {
