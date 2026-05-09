@@ -8,6 +8,11 @@
     { "source": "api_patterns", "file": "_config/api-conventions.json", "section": "auth" },
     { "source": "security_rules", "file": "_config/security-rules.json", "section": "rls" }
   ],
+  "research_findings": {
+    "rls_performance": "use_auth_uid_not_role_checks_for_speed",
+    "supabase_ssr": "@supabase/ssr_package_not_auth_helpers",
+    "middleware_pattern": "refresh_session_in_middleware_ts"
+  },
   "tasks": [
     {
       "id": "A1",
@@ -28,6 +33,7 @@
       "action": "create_rls_policies",
       "details": "users_read_own_profile_admins_read_all",
       "patterns": ["public_read_admin_write", "user_owned"],
+      "performance_note": "use_auth_uid_for_rls_not_role_checks",
       "output": "supabase/migrations/alpha/02_rls.sql"
     },
     {

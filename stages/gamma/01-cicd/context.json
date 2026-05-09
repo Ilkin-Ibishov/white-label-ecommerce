@@ -1,0 +1,78 @@
+{
+  "agent": "gamma",
+  "sprint": "1.1",
+  "stage": "01-cicd",
+  "goal": "github-actions-branch-protection-auto-deploy-monitoring",
+  "task_management": "task_master_sequential",
+  "inputs": [
+    { "source": "vercel_config", "file": "vercel.json", "section": "build_settings" },
+    { "source": "github_repo", "url": "https://github.com/Ilkin-Ibishov/white-label-ecommerce" },
+    { "source": "production_url", "url": "https://white-label-ecommerce-kappa.vercel.app" }
+  ],
+  "tasks": [
+    {
+      "id": "G1",
+      "action": "setup_task_master",
+      "details": "install_mcp_for_cicd_task_queue",
+      "config_location": "~/.codeium/windsurf/mcp_config.json",
+      "output": "task_master_enabled_for_gamma"
+    },
+    {
+      "id": "G2",
+      "action": "create_github_actions_workflow",
+      "workflow": "ci.yml",
+      "triggers": ["pull_request", "push_to_main"],
+      "jobs": ["lint", "type_check", "test", "build"],
+      "output": ".github/workflows/ci.yml"
+    },
+    {
+      "id": "G3",
+      "action": "setup_branch_protection",
+      "branch": "main",
+      "rules": [
+        "require_2_reviews",
+        "require_ci_pass",
+        "no_direct_push"
+      ],
+      "output": "branch_protection_configured"
+    },
+    {
+      "id": "G4",
+      "action": "setup_e2e_tests",
+      "framework": "playwright",
+      "tests": ["homepage_loads", "login_flow", "product_list"],
+      "output": "tests/e2e/smoke.spec.ts"
+    },
+    {
+      "id": "G5",
+      "action": "setup_monitoring",
+      "tools": ["sentry_errors", "vercel_analytics"],
+      "output": "monitoring_configured"
+    }
+  ],
+  "task_master_queue": [
+    { "id": "TM1", "task": "Initialize Task Master", "priority": "high", "complexity": "low" },
+    { "id": "TM2", "task": "Create CI workflow file", "priority": "high", "complexity": "medium" },
+    { "id": "TM3", "task": "Configure branch protection via API", "priority": "medium", "complexity": "medium" },
+    { "id": "TM4", "task": "Write first E2E smoke test", "priority": "medium", "complexity": "low" },
+    { "id": "TM5", "task": "Setup error tracking", "priority": "low", "complexity": "low" }
+  ],
+  "checkpoints": [
+    { "after": "G2", "verify": "ci_workflow_triggers_on_pr" },
+    { "after": "G3", "verify": "branch_protection_active" },
+    { "after": "G4", "verify": "e2e_test_passes_locally" }
+  ],
+  "outputs": [
+    { "artifact": "ci_workflow", "path": ".github/workflows/ci.yml", "type": "yaml" },
+    { "artifact": "e2e_tests", "path": "tests/e2e/", "type": "typescript" },
+    { "artifact": "task_master_config", "path": ".cursor/mcp.json", "type": "json" }
+  ],
+  "definition_of_done": [
+    "ci_workflow_triggers_on_pr",
+    "branch_protection_blocks_direct_push",
+    "e2e_smoke_test_passes",
+    "task_master_generates_task_list",
+    "handoff_doc_written"
+  ],
+  "handoff_location": "handoffs/gamma-2026-05-10.json"
+}

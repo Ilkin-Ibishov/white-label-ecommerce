@@ -3,11 +3,23 @@
   "sprint": "1.1",
   "stage": "01-product-schema",
   "goal": "products-categories-schema-synthetic-data-api",
+  "research_findings": {
+    "catalog_optimization": "index_filtered_columns_for_10k_plus_skus",
+    "white_label_tenancy": "add_store_id_for_future_multi_tenant_scaling",
+    "rls_patterns": "public_read_admin_write_sufficient_for_mvp"
+  },
   "inputs": [
     { "source": "store_config", "file": "config/store.config.ts", "section": "features" },
     { "source": "alpha_output", "file": "stages/alpha/01-auth-scaffold/output.json", "section": "rls_patterns" },
     { "source": "design_tokens", "file": "_config/design-tokens.json", "section": "image_specs" }
   ],
+  "complexity_scores": {
+    "B1": "high",
+    "B2": "medium",
+    "B3": "high",
+    "B4": "medium",
+    "B5": "low"
+  },
   "tasks": [
     {
       "id": "B1",
@@ -15,7 +27,8 @@
       "tables": [
         {
           "name": "products",
-          "fields": ["id", "slug", "title", "description", "price_cents", "inventory_count", "images", "category_id", "created_at", "updated_at"]
+          "fields": ["id", "store_id", "slug", "title", "description", "price_cents", "inventory_count", "images", "category_id", "created_at", "updated_at"],
+          "indexes": ["store_id", "category_id", "price_cents"]
         },
         {
           "name": "categories",
