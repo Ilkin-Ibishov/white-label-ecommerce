@@ -1,0 +1,78 @@
+{
+  "agent": "alpha",
+  "sprint": "1.1",
+  "stage": "01-auth-scaffold",
+  "goal": "supabase-auth-users-rls-middleware",
+  "inputs": [
+    { "source": "store_config", "file": "config/store.config.ts", "section": "features" },
+    { "source": "api_patterns", "file": "_config/api-conventions.json", "section": "auth" },
+    { "source": "security_rules", "file": "_config/security-rules.json", "section": "rls" }
+  ],
+  "tasks": [
+    {
+      "id": "A1",
+      "action": "configure_supabase_auth",
+      "details": "enable_email_password_auth_in_dashboard",
+      "output": "supabase_auth_enabled"
+    },
+    {
+      "id": "A2",
+      "action": "create_users_table",
+      "details": "extend_auth_users_with_profile_data",
+      "fields": ["id", "email", "role", "created_at"],
+      "roles": ["customer", "admin", "editor", "viewer"],
+      "output": "supabase/migrations/alpha/01_users.sql"
+    },
+    {
+      "id": "A3",
+      "action": "create_rls_policies",
+      "details": "users_read_own_profile_admins_read_all",
+      "patterns": ["public_read_admin_write", "user_owned"],
+      "output": "supabase/migrations/alpha/02_rls.sql"
+    },
+    {
+      "id": "A4",
+      "action": "setup_supabase_ssr",
+      "details": "configure_middleware_ts",
+      "output": "src/middleware.ts"
+    },
+    {
+      "id": "A5",
+      "action": "create_api_routes",
+      "routes": [
+        { "method": "POST", "path": "/api/auth/signup", "purpose": "customer_registration" },
+        { "method": "POST", "path": "/api/auth/login", "purpose": "login" },
+        { "method": "POST", "path": "/api/auth/logout", "purpose": "logout" },
+        { "method": "POST", "path": "/api/auth/reset-password", "purpose": "password_reset" }
+      ],
+      "output": "src/app/api/auth/*.ts"
+    },
+    {
+      "id": "A6",
+      "action": "create_admin_login_page",
+      "details": "form_email_password_error_handling_redirect",
+      "output": "src/app/(admin)/login/page.tsx"
+    }
+  ],
+  "checkpoints": [
+    { "after": "A3", "verify": "rls_policy_test_query" },
+    { "after": "A5", "verify": "api_route_tests" },
+    { "after": "A6", "verify": "ui_manual_test" }
+  ],
+  "outputs": [
+    { "artifact": "auth_middleware", "path": "src/middleware.ts", "type": "typescript" },
+    { "artifact": "api_routes", "path": "src/app/api/auth/*.ts", "type": "typescript" },
+    { "artifact": "login_page", "path": "src/app/(admin)/login/page.tsx", "type": "tsx" },
+    { "artifact": "rls_policies", "path": "supabase/migrations/alpha/*.sql", "type": "sql" },
+    { "artifact": "tests", "path": "tests/rls/auth.spec.ts", "type": "typescript" }
+  ],
+  "definition_of_done": [
+    "api_auth_login_returns_session",
+    "api_auth_signup_creates_user_with_customer_role",
+    "rls_policy_test_passes",
+    "admin_login_page_accessible",
+    "login_redirects_to_dashboard",
+    "handoff_doc_written"
+  ],
+  "handoff_location": "handoffs/alpha-2026-05-10.json"
+}

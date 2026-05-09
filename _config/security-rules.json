@@ -1,0 +1,48 @@
+{
+  "authentication": {
+    "session": { "type": "supabase_jwt", "expiry_days": 7, "refresh": "rotate_on_access", "storage": "httponly_cookie" },
+    "password_policy": { "min_length": 8, "complexity": "none_per_nist" },
+    "rate_limits": { "login_per_ip": "5_per_15_min", "signup_per_ip": "3_per_hour", "password_reset_per_email": "3_per_hour" },
+    "admin_access": { "role_storage": "users.role", "checks": "server_only_middleware" }
+  },
+  "authorization": {
+    "rls_patterns": {
+      "public_read_admin_write": { "description": "Everyone can read, only admins can modify" },
+      "user_owned": { "description": "Users can only access their own data" },
+      "role_hierarchy": { "description": "Admin > Editor > Viewer" }
+    }
+  },
+  "input_validation": {
+    "tool": "zod",
+    "required": true,
+    "pattern": { "validate": "safeParse", "error_response": { "code": "VALIDATION_ERROR", "status": 422 } }
+  },
+  "rate_limiting": {
+    "checkout": { "limit": "5_per_hour_per_ip", "scope": "guest_and_authenticated" },
+    "auth_endpoints": { "login": "5_per_15_min_per_ip", "signup": "3_per_hour_per_ip", "password_reset": "3_per_hour_per_email" }
+  },
+  "sql_injection_prevention": {
+    "never": "concatenate_user_input_into_sql",
+    "always": "use_supabase_query_builder"
+  },
+  "xss_prevention": {
+    "react": "escapes_by_default",
+    "dangerous_html": "only_for_lexical_rich_text",
+    "api_responses": "plain_text_or_markdown_no_html"
+  },
+  "csrf_protection": { "cookies": "samesite_lax", "tokens": "not_required_for_api_routes" },
+  "secrets_management": {
+    "client_safe": ["NEXT_PUBLIC_SUPABASE_URL", "NEXT_PUBLIC_SUPABASE_ANON_KEY"],
+    "server_only": ["SUPABASE_SERVICE_ROLE_KEY", "DB_PASSWORD"],
+    "never_commit": ".env.local"
+  },
+  "sec_gatekeeper_checklist": [
+    "rls_policies_prevent_unauthorized_access",
+    "input_validation_zod_on_all_routes",
+    "no_secrets_in_code",
+    "rate_limiting_configured",
+    "sql_injection_impossible",
+    "xss_vectors_reviewed",
+    "chaos_tests_pass"
+  ]
+}

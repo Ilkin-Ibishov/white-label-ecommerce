@@ -1,0 +1,42 @@
+{
+  "route_structure": {
+    "auth": { "owner": "alpha", "routes": ["signup", "login", "logout", "reset-password"] },
+    "products": { "owner": "beta", "routes": ["list", "detail"] },
+    "categories": { "owner": "beta", "routes": ["tree", "by-category"] },
+    "cart": { "owner": "beta", "sprint": "1.2" },
+    "orders": { "owner": "beta", "sprint": "1.2" },
+    "health": { "owner": "gamma", "purpose": "monitoring" }
+  },
+  "response_format": {
+    "success": { "data": "object", "meta": { "page": "number", "per_page": "number", "total": "number" } },
+    "success_list": { "data": "array", "meta": { "page": "number", "per_page": "number", "total": "number", "total_pages": "number" } },
+    "error": { "error": { "code": "string", "message": "string" } }
+  },
+  "error_codes": {
+    "UNAUTHORIZED": { "http": 401, "meaning": "auth_required" },
+    "FORBIDDEN": { "http": 403, "meaning": "insufficient_permissions" },
+    "NOT_FOUND": { "http": 404, "meaning": "resource_not_found" },
+    "VALIDATION_ERROR": { "http": 422, "meaning": "invalid_input" },
+    "RATE_LIMITED": { "http": 429, "meaning": "too_many_requests" },
+    "INTERNAL_ERROR": { "http": 500, "meaning": "server_error" }
+  },
+  "rls_patterns": {
+    "public_read_admin_write": {
+      "select": "true",
+      "modify": "auth.uid() IN (SELECT id FROM users WHERE role = 'admin')"
+    },
+    "user_owned": {
+      "all": "user_id = auth.uid()"
+    },
+    "role_hierarchy": {
+      "admin_editor": "role IN ('admin', 'editor')",
+      "all_roles": "role IN ('admin', 'editor', 'viewer')"
+    }
+  },
+  "query_patterns": {
+    "pagination": { "per_page": 24, "formula": "from = (page - 1) * per_page" },
+    "filtering": ["category_slug", "price_range", "search_ilike"],
+    "performance": { "simple_query_ms": 200, "complex_query_ms": 500 }
+  },
+  "testing_requirements": ["unit_vitest", "integration_supabase", "e2e_playwright"]
+}

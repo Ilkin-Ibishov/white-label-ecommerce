@@ -1,0 +1,88 @@
+{
+  "agent": "beta",
+  "sprint": "1.1",
+  "stage": "01-product-schema",
+  "goal": "products-categories-schema-synthetic-data-api",
+  "inputs": [
+    { "source": "store_config", "file": "config/store.config.ts", "section": "features" },
+    { "source": "alpha_output", "file": "stages/alpha/01-auth-scaffold/output.json", "section": "rls_patterns" },
+    { "source": "design_tokens", "file": "_config/design-tokens.json", "section": "image_specs" }
+  ],
+  "tasks": [
+    {
+      "id": "B1",
+      "action": "design_database_schema",
+      "tables": [
+        {
+          "name": "products",
+          "fields": ["id", "slug", "title", "description", "price_cents", "inventory_count", "images", "category_id", "created_at", "updated_at"]
+        },
+        {
+          "name": "categories",
+          "fields": ["id", "slug", "name", "parent_id", "sort_order"]
+        },
+        {
+          "name": "product_images",
+          "fields": ["id", "product_id", "url", "alt_text", "sort_order"]
+        }
+      ],
+      "output": "supabase/migrations/beta/01_schema.sql"
+    },
+    {
+      "id": "B2",
+      "action": "create_rls_policies",
+      "patterns": ["public_read_admin_write"],
+      "tables": ["products", "categories", "product_images"],
+      "output": "supabase/migrations/beta/02_rls.sql"
+    },
+    {
+      "id": "B3",
+      "action": "generate_synthetic_data",
+      "count": 10000,
+      "categories": 50,
+      "hierarchy": "electronics_phones_smartphones",
+      "images": "picsum_photos_400x400",
+      "tool": "faker_js",
+      "output": "scripts/seed/synthetic-data.ts"
+    },
+    {
+      "id": "B4",
+      "action": "create_api_routes",
+      "routes": [
+        { "method": "GET", "path": "/api/products", "purpose": "list_paginated_filters", "filters": ["category", "price_range", "search"] },
+        { "method": "GET", "path": "/api/products/[slug]", "purpose": "product_detail" },
+        { "method": "GET", "path": "/api/categories", "purpose": "category_tree" },
+        { "method": "GET", "path": "/api/categories/[slug]/products", "purpose": "products_by_category" }
+      ],
+      "output": "src/app/api/products/ src/app/api/categories/"
+    },
+    {
+      "id": "B5",
+      "action": "create_seed_script",
+      "requirements": ["idempotent", "seeds_beta_db_branch"],
+      "output": "scripts/seed/run.ts"
+    }
+  ],
+  "checkpoints": [
+    { "after": "B1", "verify": "schema_arch_review", "gatekeeper": "arch" },
+    { "after": "B3", "verify": "spot_check_10_products" },
+    { "after": "B4", "verify": "api_response_time_200ms" }
+  ],
+  "outputs": [
+    { "artifact": "schema", "path": "supabase/migrations/beta/01_schema.sql", "type": "sql" },
+    { "artifact": "seed_script", "path": "scripts/seed/synthetic-data.ts", "type": "typescript" },
+    { "artifact": "api_products", "path": "src/app/api/products/", "type": "typescript" },
+    { "artifact": "api_categories", "path": "src/app/api/categories/", "type": "typescript" },
+    { "artifact": "seed_data", "path": "beta-db", "type": "postgresql" }
+  ],
+  "definition_of_done": [
+    "schema_arch_approved",
+    "10000_products_seeded_in_beta_db",
+    "api_products_returns_paginated_list_24_per_page",
+    "api_products_slug_returns_single_product",
+    "api_categories_returns_tree_structure",
+    "query_performance_under_200ms",
+    "handoff_doc_written"
+  ],
+  "handoff_location": "handoffs/beta-2026-05-10.json"
+}

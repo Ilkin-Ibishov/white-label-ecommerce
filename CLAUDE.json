@@ -1,0 +1,53 @@
+{
+  "project": {
+    "name": "white-label-ecommerce",
+    "repo": "https://github.com/Ilkin-Ibishov/white-label-ecommerce",
+    "production": "https://white-label-ecommerce-kappa.vercel.app",
+    "sprint": "1.1",
+    "phase": "Foundation",
+    "stack": {
+      "framework": "Next.js 16.2.6",
+      "styling": "TailwindCSS + shadcn/ui",
+      "backend": "Supabase",
+      "state": "TanStack Query",
+      "testing": "Vitest + Playwright"
+    }
+  },
+  "agents": {
+    "execution": {
+      "alpha": { "domain": ["auth", "accounts", "admin"], "branch": "alpha-db", "status": "active", "current_task": "auth-system-scaffold" },
+      "beta": { "domain": ["products", "cart", "checkout", "orders"], "branch": "beta-db", "status": "active", "current_task": "product-catalog-schema" },
+      "gamma": { "domain": ["qa", "devops", "deployment", "docs"], "branch": "gamma-db", "status": "completed", "current_task": "hour-1-scaffold" }
+    },
+    "gatekeepers": {
+      "sec": { "reviews": ["auth", "rls", "api-routes"], "required_approval": true },
+      "arch": { "reviews": ["schema", "migrations", "types"], "required_approval": true },
+      "ux": { "reviews": ["components", "design", "mobile"], "required_approval": true }
+    }
+  },
+  "rules": {
+    "context_loading": ["layer_0_always", "layer_1_routing", "layer_2_stage", "layer_3_selective", "layer_4_artifacts"],
+    "coordination": "git_native",
+    "handoff_interval": "48_hours",
+    "deployment": "every_pr_production",
+    "state_management": "tanstack_query_only",
+    "images": "supabase_storage",
+    "payment": "simple_pay_on_delivery"
+  },
+  "layer_0_always_loaded": {
+    "sprint": "1.1",
+    "current_focus": {
+      "alpha": "auth-system-scaffold",
+      "beta": "product-catalog-schema",
+      "gamma": "ci-cd-pipeline"
+    },
+    "hour_1_complete": true,
+    "production_url": "https://white-label-ecommerce-kappa.vercel.app"
+  },
+  "directory_structure": {
+    "stages": "stages/{agent}/{stage}/context.json",
+    "config": "_config/{domain}.json",
+    "handoffs": "handoffs/{agent}-{date}.json",
+    "sprint_state": "sprint/current.json"
+  }
+}
