@@ -42,14 +42,13 @@ export async function GET(request: Request) {
     
     const supabase = await createClient();
     
-    // Build query
+    // Build query - using actual DB schema
     let dbQuery = supabase
       .from('products')
       .select(
-        'id, slug, title, short_description, price_cents, compare_at_price_cents, inventory_count, is_featured, status, created_at, category:categories(id, slug, name), images:product_images(url, alt_text, is_primary)',
+        'id, slug, name_en, description_en, price, original_price, stock_available, is_featured, is_on_sale, created_at, category:categories(id, slug, name_en), image_url',
         { count: 'exact' }
-      )
-      .eq('status', 'active');
+      );
     
     // Apply category filter
     if (category) {
@@ -72,27 +71,26 @@ export async function GET(request: Request) {
       }
     }
     
-    // Apply price filters
+    // Apply price filters (convert dollars to cents)
     if (min_price !== undefined) {
-      dbQuery = dbQuery.gte('price_cents', min_price);
+      dbQuery = dbQuery.gte('price', min_price / 100);
     }
     if (max_price !== undefined) {
-      dbQuery = dbQuery.lte('price_cents', max_price);
+      dbQuery = dbQuery.lte('price', max_price / 100);
     }
     
-    // Apply search filter (full-text search)
+    // Apply search filter
     if (search) {
-      // Use ilike for simple search (or use full-text search if enabled)
-      dbQuery = dbQuery.ilike('title', `%${search}%`);
+      dbQuery = dbQuery.ilike('name_en', `%${search}%`);
     }
     
     // Apply sorting
     switch (sort) {
       case 'price_asc':
-        dbQuery = dbQuery.order('price_cents', { ascending: true });
+        dbQuery = dbQuery.order('price', { ascending: true });
         break;
       case 'price_desc':
-        dbQuery = dbQuery.order('price_cents', { ascending: false });
+        dbQuery = dbQuery.order('price', { ascending: false });
         break;
       case 'newest':
         dbQuery = dbQuery.order('created_at', { ascending: false });
