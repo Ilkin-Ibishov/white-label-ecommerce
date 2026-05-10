@@ -60,6 +60,7 @@ export async function GET(
       .single();
     
     if (error) {
+      console.error('Product detail query error:', JSON.stringify(error));
       if (error.code === 'PGRST116') {
         // Not found
         return NextResponse.json(
@@ -68,9 +69,8 @@ export async function GET(
         );
       }
       
-      console.error('Product detail error:', error);
       return NextResponse.json(
-        { error: { code: 'INTERNAL_ERROR', message: 'Failed to fetch product' } },
+        { error: { code: 'INTERNAL_ERROR', message: error.message || 'Failed to fetch product' } },
         { status: 500 }
       );
     }
