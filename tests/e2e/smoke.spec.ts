@@ -30,7 +30,7 @@ test.describe("smoke: foundational routes", () => {
   });
 
   test("login page renders email + password fields", async ({ page }) => {
-    await page.goto("/login");
+    await page.goto("/admin/login");
 
     await expect(
       page.getByRole("heading", { name: /admin dashboard/i })

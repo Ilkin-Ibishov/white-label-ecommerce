@@ -66,11 +66,11 @@ export async function middleware(request: NextRequest) {
   // Route protection logic
   const pathname = request.nextUrl.pathname;
 
-  // Admin routes require admin role
-  if (pathname.startsWith('/(admin)') || pathname.startsWith('/admin')) {
+  // Admin routes require admin role. The /admin/login page is itself an
+  // admin route file but must be reachable when unauthenticated.
+  if (pathname.startsWith('/admin') && !pathname.startsWith('/admin/login')) {
     if (!session || userRole !== 'admin') {
-      // Redirect to login
-      const loginUrl = new URL('/login', request.url);
+      const loginUrl = new URL('/admin/login', request.url);
       loginUrl.searchParams.set('redirect', pathname);
       return NextResponse.redirect(loginUrl);
     }
@@ -96,9 +96,9 @@ export async function middleware(request: NextRequest) {
     }
   }
 
-  // Redirect authenticated users away from login page
-  if (pathname === '/login' && session && userRole === 'admin') {
-    return NextResponse.redirect(new URL('/admin', request.url));
+  // Redirect authenticated admins away from the login page
+  if (pathname === '/admin/login' && session && userRole === 'admin') {
+    return NextResponse.redirect(new URL('/admin/dashboard', request.url));
   }
 
   return response;

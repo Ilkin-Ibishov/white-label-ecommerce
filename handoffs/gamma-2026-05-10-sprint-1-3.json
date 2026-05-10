@@ -7,50 +7,134 @@
   "from": "02-ui",
   "context_file": "stages/gamma/03-admin-ui/context.json",
   "delegation_prompt": "DEVIN-GAMMA-ADMIN-DELEGATION.md",
-  "status": "ready_to_start",
-  "tasks_to_complete": [
-    "G12: Admin Layout with Navigation",
-    "G13: Dashboard Overview Page",
-    "G14: Product List Page",
-    "G15: Product Create/Edit Form",
-    "G16: Category Management Page",
-    "G17: Orders List Page",
-    "G18: Order Detail Page",
-    "G19: Sales Analytics Charts"
+  "branch": "gamma/sprint-1-3-admin",
+  "status": "completed",
+  "tasks_completed": [
+    {
+      "id": "G12",
+      "action": "admin_layout_and_navigation",
+      "completed": true,
+      "artifacts": [
+        "src/app/admin/layout.tsx",
+        "src/components/admin/AdminShell.tsx",
+        "src/components/admin/AdminHeader.tsx",
+        "src/components/admin/Sidebar.tsx"
+      ],
+      "notes": "Sidebar (Dashboard, Products, Categories, Orders, Analytics) with active highlighting. Sticky header with user email + logout. Collapsible mobile drawer with backdrop. Hidden chrome on /admin/login. Renamed src/app/(admin) → src/app/admin so URLs (/admin/dashboard etc.) actually match the middleware and existing /admin/* hrefs."
+    },
+    {
+      "id": "G13",
+      "action": "dashboard_overview",
+      "completed": true,
+      "artifacts": ["src/app/admin/dashboard/page.tsx"],
+      "notes": "Four stat cards (today sales, orders today, pending, low stock) wired to /api/admin/analytics + /api/admin/alerts/low-stock via TanStack Query. Recent orders table (last 5). Quick actions (Add product, View all orders)."
+    },
+    {
+      "id": "G14",
+      "action": "product_list",
+      "completed": true,
+      "artifacts": ["src/app/admin/products/page.tsx"],
+      "notes": "Sortable table with thumbnail, name, price, stock badge, category, status. Debounced search, category + stock-status filters, pagination, bulk-select + bulk delete with confirmation dialog."
+    },
+    {
+      "id": "G15",
+      "action": "product_form",
+      "completed": true,
+      "artifacts": [
+        "src/components/admin/ProductForm.tsx",
+        "src/components/admin/ImageUploader.tsx",
+        "src/app/admin/products/new/page.tsx",
+        "src/app/admin/products/[id]/edit/page.tsx"
+      ],
+      "notes": "react-hook-form + zod validation. Multi-language name + description fields, price/original_price/stock numeric inputs, category dropdown sourced from /api/admin/categories, multi-image manager with primary selection, featured/on_sale toggles. POST/PUT via TanStack Query mutations, success/error toasts via sonner."
+    },
+    {
+      "id": "G16",
+      "action": "category_management",
+      "completed": true,
+      "artifacts": [
+        "src/app/admin/categories/page.tsx",
+        "src/components/admin/CategoryTree.tsx"
+      ],
+      "notes": "Indented tree view with parent/child grouping. Add/edit modals share zod-validated form; parent dropdown disables self + descendants on edit to prevent cycles. Delete confirmation dialog."
+    },
+    {
+      "id": "G17",
+      "action": "orders_list",
+      "completed": true,
+      "artifacts": ["src/app/admin/orders/page.tsx"],
+      "notes": "Filters: status dropdown, date_from/date_to, debounced search by order # / email. Sort toggles for date, total, status. URL-synced state. Pagination."
+    },
+    {
+      "id": "G18",
+      "action": "order_detail",
+      "completed": true,
+      "artifacts": ["src/app/admin/orders/[id]/page.tsx"],
+      "notes": "Order header with status update dropdown (PUT /api/admin/orders/[id]). Customer + shipping address + line items table + totals. Print button with @media print styles that hide sidebar/header."
+    },
+    {
+      "id": "G19",
+      "action": "analytics_charts",
+      "completed": true,
+      "artifacts": [
+        "src/components/admin/AnalyticsCharts.tsx",
+        "src/app/admin/analytics/page.tsx"
+      ],
+      "notes": "Recharts (installed) line chart for revenue, bar chart for orders, top-products list. Date-range selector (7d/30d/90d/1y). Embedded on dashboard; standalone /admin/analytics page with weekly/monthly summaries."
+    }
   ],
-  "available_apis": [
-    "GET /api/admin/products - List with filters",
-    "POST /api/admin/products - Create product",
-    "PUT /api/admin/products/[id] - Update product",
-    "DELETE /api/admin/products/[id] - Delete product",
-    "GET /api/admin/categories - List categories",
-    "POST /api/admin/categories - Create category",
-    "PUT /api/admin/categories/[id] - Update category",
-    "DELETE /api/admin/categories/[id] - Delete category",
-    "GET /api/admin/orders - List orders",
-    "GET /api/admin/orders/[id] - Order details",
-    "PUT /api/admin/orders/[id] - Update status",
-    "GET /api/admin/analytics - Dashboard stats",
-    "GET /api/admin/analytics/sales - Chart data",
-    "GET /api/admin/alerts/low-stock - Low stock alerts"
+  "supporting_changes": [
+    {
+      "purpose": "shared admin data layer",
+      "files": [
+        "src/lib/admin/types.ts",
+        "src/lib/admin/api.ts",
+        "src/lib/admin/queries.ts"
+      ]
+    },
+    {
+      "purpose": "shadcn UI primitives (badge, table, dialog, textarea, select, switch, skeleton)",
+      "files": [
+        "src/components/ui/badge.tsx",
+        "src/components/ui/table.tsx",
+        "src/components/ui/dialog.tsx",
+        "src/components/ui/textarea.tsx",
+        "src/components/ui/select.tsx",
+        "src/components/ui/switch.tsx",
+        "src/components/ui/skeleton.tsx"
+      ]
+    },
+    {
+      "purpose": "fix admin route prefix",
+      "files": [
+        "src/middleware.ts",
+        "src/app/admin/login/LoginForm.tsx",
+        "tests/e2e/smoke.spec.ts"
+      ],
+      "notes": "Renamed (admin) route group → admin so /admin/* URLs work. Updated middleware to redirect to /admin/login (instead of /login) and login form default redirect to /admin/dashboard. Smoke test now visits /admin/login."
+    },
+    {
+      "purpose": "fix preexisting prefer-const lint errors so CI lint stays green",
+      "files": [
+        "src/app/api/admin/analytics/route.ts",
+        "src/app/api/admin/analytics/sales/route.ts"
+      ]
+    },
+    {
+      "purpose": "add recharts dependency",
+      "files": ["package.json", "package-lock.json"]
+    }
   ],
-  "existing_ui": {
-    "admin_login": "src/app/(admin)/login/page.tsx",
-    "admin_dashboard_basic": "src/app/(admin)/dashboard/page.tsx",
-    "admin_layout": "src/app/(admin)/layout.tsx",
-    "sidebar_needed": true
-  },
-  "dependencies": {
-    "from_alpha": "All admin APIs ready",
-    "from_beta": "Analytics and order APIs ready",
-    "from_gamma_sprint_1_2": "Reusable: shadcn components, TanStack Query patterns, auth context"
+  "verification": {
+    "lint": "npm run lint → 0 errors, 27 warnings (all preexisting any-types from API routes)",
+    "type_check": "npm run type-check → passes",
+    "build": "npm run build → all 24 pages compile and prerender; all /admin/* pages registered as dynamic routes",
+    "unit_tests": "npm run test:ci → 3/3 pass",
+    "manual_e2e": "Suggested: log in as admin@whitelabel.local / admin123456 on Vercel preview"
   },
   "notes": [
-    "Admin layout exists but needs sidebar navigation",
-    "Use existing QueryProvider from Sprint 1.2",
-    "Dashboard page exists but needs stats and charts",
-    "Products, Categories, Orders pages need full implementation",
-    "All admin APIs are live on production"
-  ],
-  "ready_for_review": false
+    "API contract for image upload (POST /api/admin/upload) is not yet implemented in the backend. The ImageUploader currently accepts hosted image URLs; once Alpha ships the upload endpoint, swap the URL input for a file picker that POSTs to it.",
+    "GET /api/admin/products/[id] is not exposed by Beta yet; the edit page hydrates from the list endpoint as a workaround. Replace fetchAdminProduct in src/lib/admin/api.ts when the detail endpoint ships.",
+    "Top-products list on /admin/analytics currently mirrors the low-stock feed as a placeholder until Beta exposes a top-sellers analytics breakdown."
+  ]
 }
