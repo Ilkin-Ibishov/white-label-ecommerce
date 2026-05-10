@@ -2,6 +2,7 @@
 // PUT - Update product, DELETE - Remove product
 
 import { createClient } from '@/lib/supabase/server';
+import { createAdminClient } from '@/lib/supabase/admin';
 import { z } from 'zod';
 import { NextResponse } from 'next/server';
 
@@ -56,8 +57,10 @@ export async function PUT(
       );
     }
     
+    const admin = createAdminClient();
+    
     // Update product
-    const { data: product, error } = await supabase
+    const { data: product, error } = await admin
       .from('products')
       .update({
         ...data,
@@ -109,11 +112,13 @@ export async function DELETE(
       );
     }
     
+    const admin = createAdminClient();
+    
     // Remove from cart_items first (cascade)
-    await supabase.from('cart_items').delete().eq('product_id', id);
+    await admin.from('cart_items').delete().eq('product_id', id);
     
     // Delete product
-    const { error } = await supabase
+    const { error } = await admin
       .from('products')
       .delete()
       .eq('id', id);

@@ -1,5 +1,6 @@
 // Alpha Sprint 1.2 A8: Cart API
 import { createClient } from '@/lib/supabase/server';
+import { createAdminClient } from '@/lib/supabase/admin';
 import { z } from 'zod';
 import { NextResponse } from 'next/server';
 
@@ -70,7 +71,8 @@ export async function POST(request: Request) {
     }
     
     const { session_id, product_id, quantity } = result.data;
-    const supabase = await createClient();
+    const supabase = await createClient(); // anon client for reads
+    const admin = createAdminClient(); // admin client for writes
     
     // Check if product exists
     const { data: product, error: productError } = await supabase
@@ -99,16 +101,16 @@ export async function POST(request: Request) {
       .eq('session_id', session_id)
       .eq('product_id', product_id)
       .single();
-    
+
     if (existing) {
       // Update quantity
-      const { data, error } = await supabase
+      const { data, error } = await admin
         .from('cart_items')
         .update({ quantity: existing.quantity + quantity, updated_at: new Date().toISOString() })
         .eq('id', existing.id)
         .select()
         .single();
-      
+
       if (error) {
         console.error('Cart update error:', error);
         return NextResponse.json({ error: { code: 'UPDATE_ERROR', message: error.message } }, { status: 500 });
@@ -116,12 +118,12 @@ export async function POST(request: Request) {
       return NextResponse.json({ data, message: 'Quantity updated' });
     } else {
       // Insert new
-      const { data, error } = await supabase
+      const { data, error } = await admin
         .from('cart_items')
         .insert({ session_id, product_id, quantity })
         .select()
         .single();
-      
+
       if (error) {
         console.error('Cart insert error:', error);
         return NextResponse.json({ error: { code: 'INSERT_ERROR', message: error.message } }, { status: 500 });
@@ -146,22 +148,22 @@ export async function PUT(request: Request) {
     }
     
     const { session_id, cart_item_id, quantity } = result.data;
-    const supabase = await createClient();
-    
+    const admin = createAdminClient();
+
     if (quantity === 0) {
       // Remove item
-      const { error } = await supabase
+      const { error } = await admin
         .from('cart_items')
         .delete()
         .eq('id', cart_item_id)
         .eq('session_id', session_id);
-      
+
       if (error) throw error;
       return NextResponse.json({ message: 'Item removed' });
     }
-    
+
     // Update quantity
-    const { data, error } = await supabase
+    const { data, error } = await admin
       .from('cart_items')
       .update({ quantity, updated_at: new Date().toISOString() })
       .eq('id', cart_item_id)
@@ -189,9 +191,9 @@ export async function DELETE(request: Request) {
       return NextResponse.json({ error: { code: 'MISSING_PARAMS', message: 'Session ID and Cart Item ID required' } }, { status: 400 });
     }
     
-    const supabase = await createClient();
-    
-    const { error } = await supabase
+    const admin = createAdminClient();
+
+    const { error } = await admin
       .from('cart_items')
       .delete()
       .eq('id', cart_item_id)

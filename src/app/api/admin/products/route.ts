@@ -2,6 +2,7 @@
 // GET - List products with filters, POST - Create new product
 
 import { createClient } from '@/lib/supabase/server';
+import { createAdminClient } from '@/lib/supabase/admin';
 import { z } from 'zod';
 import { NextResponse } from 'next/server';
 
@@ -149,8 +150,10 @@ export async function POST(request: Request) {
       .replace(/[^a-z0-9]+/g, '-')
       .replace(/(^-|-$)/g, '') + '-' + Date.now().toString(36);
     
+    const admin = createAdminClient();
+    
     // Create product
-    const { data: product, error } = await supabase
+    const { data: product, error } = await admin
       .from('products')
       .insert({
         ...data,

@@ -1,5 +1,6 @@
 // Alpha Sprint 1.2 A10: Checkout API
 import { createClient } from '@/lib/supabase/server';
+import { createAdminClient } from '@/lib/supabase/admin';
 import { z } from 'zod';
 import { NextResponse } from 'next/server';
 
@@ -84,19 +85,20 @@ async function handleShipping(body: any) {
   
   const { session_id, customer_email, customer_phone, shipping_address, payment_method } = result.data;
   const supabase = await createClient();
-  
+  const admin = createAdminClient();
+
   // Calculate total
   const { data: cartItems } = await supabase
     .from('cart_items')
     .select(`quantity, product:products(price)`)
     .eq('session_id', session_id);
-  
+
   const total = cartItems?.reduce((sum: number, item: any) => {
     return sum + (item.product?.price || 0) * item.quantity;
   }, 0) || 0;
-  
-  // Save checkout session
-  const { data, error } = await supabase
+
+  // Save checkout session (admin client bypasses RLS)
+  const { data, error } = await admin
     .from('checkout_sessions')
     .upsert({
       session_id,
@@ -132,7 +134,8 @@ async function handleConfirm(body: any) {
   }
   
   const supabase = await createClient();
-  
+  const admin = createAdminClient();
+
   // Get checkout session
   const { data: checkout } = await supabase
     .from('checkout_sessions')
@@ -140,23 +143,23 @@ async function handleConfirm(body: any) {
     .eq('session_id', session_id)
     .eq('status', 'pending')
     .single();
-  
+
   if (!checkout) {
     return NextResponse.json({ error: { code: 'CHECKOUT_NOT_FOUND', message: 'Checkout session not found or expired' } }, { status: 404 });
   }
-  
+
   // Get cart items
   const { data: cartItems } = await supabase
     .from('cart_items')
     .select(`*, product:products(id, name_en, image_url, price)`)
     .eq('session_id', session_id);
-  
+
   if (!cartItems || cartItems.length === 0) {
     return NextResponse.json({ error: { code: 'EMPTY_CART', message: 'Cart is empty' } }, { status: 400 });
   }
-  
-  // Create order (this would normally be a transaction)
-  const { data: order, error: orderError } = await supabase
+
+  // Create order (admin client bypasses RLS)
+  const { data: order, error: orderError } = await admin
     .from('orders')
     .insert({
       customer_email: checkout.customer_email,
@@ -168,9 +171,9 @@ async function handleConfirm(body: any) {
     })
     .select()
     .single();
-  
+
   if (orderError) throw orderError;
-  
+
   // Create order items
   const orderItems = cartItems.map((item: any) => ({
     order_id: order.id,
@@ -180,18 +183,18 @@ async function handleConfirm(body: any) {
     price_cents: Math.round((item.product?.price || 0) * 100),
     quantity: item.quantity,
   }));
-  
-  const { error: itemsError } = await supabase
+
+  const { error: itemsError } = await admin
     .from('order_items')
     .insert(orderItems);
-  
+
   if (itemsError) throw itemsError;
-  
+
   // Clear cart
-  await supabase.from('cart_items').delete().eq('session_id', session_id);
-  
+  await admin.from('cart_items').delete().eq('session_id', session_id);
+
   // Mark checkout as completed
-  await supabase
+  await admin
     .from('checkout_sessions')
     .update({ status: 'completed' })
     .eq('id', checkout.id);

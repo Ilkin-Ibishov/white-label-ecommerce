@@ -1,5 +1,6 @@
 // Beta Sprint 1.2 B8: Orders API
 import { createClient } from '@/lib/supabase/server';
+import { createAdminClient } from '@/lib/supabase/admin';
 import { z } from 'zod';
 import { NextResponse } from 'next/server';
 
@@ -65,7 +66,7 @@ export async function PATCH(request: Request) {
     
     const { status } = result.data;
     const supabase = await createClient();
-    
+
     // Check if admin
     const { data: user } = await supabase.auth.getUser();
     const { data: userData } = await supabase
@@ -73,12 +74,13 @@ export async function PATCH(request: Request) {
       .select('role')
       .eq('id', user.user?.id)
       .single();
-    
+
     if (userData?.role !== 'admin') {
       return NextResponse.json({ error: { code: 'UNAUTHORIZED', message: 'Admin access required' } }, { status: 403 });
     }
-    
-    const { data, error } = await supabase
+
+    const admin = createAdminClient();
+    const { data, error } = await admin
       .from('orders')
       .update({ status, updated_at: new Date().toISOString() })
       .eq('id', orderId)

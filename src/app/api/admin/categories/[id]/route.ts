@@ -1,6 +1,7 @@
 // Alpha Sprint 1.3 A16: Admin Category Update/Delete API
 
 import { createClient } from '@/lib/supabase/server';
+import { createAdminClient } from '@/lib/supabase/admin';
 import { z } from 'zod';
 import { NextResponse } from 'next/server';
 
@@ -50,7 +51,8 @@ export async function PUT(
     }
     
     // Update category
-    const { data: category, error } = await supabase
+    const admin = createAdminClient();
+    const { data: category, error } = await admin
       .from('categories')
       .update({
         ...data,
@@ -120,7 +122,8 @@ export async function DELETE(
     }
     
     // Delete category
-    const { error } = await supabase
+    const admin = createAdminClient();
+    const { error } = await admin
       .from('categories')
       .delete()
       .eq('id', id);

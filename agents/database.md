@@ -33,7 +33,7 @@ The migration files in `supabase/migrations/` define a different schema than wha
 ## Supabase Clients
 
 - **Anon client** (`@/lib/supabase/server.ts`): Uses `sb_publishable_` key. Public reads only. Cannot bypass RLS.
-- **Admin client** (needs creation): Uses `sb_secret_` key. Bypasses RLS. Required for cart/checkout/order writes.
+- **Admin client** (`@/lib/supabase/admin.ts`): Uses `sb_secret_` key via `SUPABASE_SECRET_KEY` env var. Bypasses RLS. Required for cart/checkout/order/admin writes. NEVER expose to browser.
 - **Browser client** (`@/lib/supabase/client.ts`): Uses anon key. For client-side auth and reads.
 
 ## RLS Patterns

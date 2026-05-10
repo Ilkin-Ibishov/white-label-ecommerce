@@ -2,6 +2,7 @@
 // GET - List all, POST - Create, PUT - Update, DELETE - Remove
 
 import { createClient } from '@/lib/supabase/server';
+import { createAdminClient } from '@/lib/supabase/admin';
 import { z } from 'zod';
 import { NextResponse } from 'next/server';
 
@@ -60,7 +61,7 @@ export async function POST(request: Request) {
     }
     
     const data = result.data;
-    const supabase = await createClient();
+    const admin = createAdminClient();
     
     // Generate slug
     const slug = data.name_en
@@ -68,7 +69,7 @@ export async function POST(request: Request) {
       .replace(/[^a-z0-9]+/g, '-')
       .replace(/(^-|-$)/g, '');
     
-    const { data: category, error } = await supabase
+    const { data: category, error } = await admin
       .from('categories')
       .insert({ ...data, slug })
       .select()

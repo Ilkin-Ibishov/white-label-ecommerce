@@ -1,6 +1,7 @@
 // Beta Sprint 1.3 B11-B12: Admin Order Detail & Status Update API
 
 import { createClient } from '@/lib/supabase/server';
+import { createAdminClient } from '@/lib/supabase/admin';
 import { z } from 'zod';
 import { NextResponse } from 'next/server';
 
@@ -106,7 +107,8 @@ export async function PUT(
     }
     
     // Update order status
-    const { data: order, error } = await supabase
+    const admin = createAdminClient();
+    const { data: order, error } = await admin
       .from('orders')
       .update({
         status,
