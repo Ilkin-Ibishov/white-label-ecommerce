@@ -28,7 +28,7 @@ export async function GET(request: Request) {
     
     // Calculate date range
     const now = new Date();
-    let fromDate = new Date();
+    const fromDate = new Date();
     
     switch (period) {
       case '7d':

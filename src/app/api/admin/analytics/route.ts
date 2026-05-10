@@ -79,7 +79,7 @@ export async function GET() {
     const monthCount = monthOrders.data?.length || 0;
     
     // Manual status counts if RPC fails
-    let statusBreakdown = { pending: 0, confirmed: 0, processing: 0, shipped: 0, delivered: 0, cancelled: 0 };
+    const statusBreakdown = { pending: 0, confirmed: 0, processing: 0, shipped: 0, delivered: 0, cancelled: 0 };
     if (!statusCounts?.data) {
       const { data: allOrders } = await supabase
         .from('orders')
