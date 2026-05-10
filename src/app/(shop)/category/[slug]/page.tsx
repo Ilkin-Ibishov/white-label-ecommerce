@@ -45,7 +45,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   const category = await getCategoryBySlug(slug);
   return {
     title: category?.name ?? 'Browse products',
-    description: category?.description ?? undefined,
+    description: undefined,
   };
 }
 
@@ -87,11 +87,7 @@ export default async function CategoryPage({ params, searchParams }: PageProps) 
         <h1 className="text-3xl font-bold tracking-tight text-slate-900 dark:text-white">
           {heading}
         </h1>
-        {category?.description && (
-          <p className="mt-2 max-w-prose text-slate-600 dark:text-slate-300">
-            {category.description}
-          </p>
-        )}
+
         <p className="mt-2 text-sm text-slate-500 dark:text-slate-400">
           {meta.total.toLocaleString()} product{meta.total === 1 ? '' : 's'}
         </p>
