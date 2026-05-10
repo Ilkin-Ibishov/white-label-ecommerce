@@ -128,11 +128,11 @@ async function handleShipping(body: any) {
 
 async function handleConfirm(body: any) {
   const { session_id } = body;
-  
+
   if (!session_id) {
     return NextResponse.json({ error: { code: 'MISSING_SESSION', message: 'Session ID required' } }, { status: 400 });
   }
-  
+
   const supabase = await createClient();
   const admin = createAdminClient();
 
@@ -158,7 +158,32 @@ async function handleConfirm(body: any) {
     return NextResponse.json({ error: { code: 'EMPTY_CART', message: 'Cart is empty' } }, { status: 400 });
   }
 
-  // Create order (admin client bypasses RLS)
+  // Try transactional RPC first (migration 06). Falls back to multi-step if RPC doesn't exist.
+  const { data: rpcResult, error: rpcError } = await admin.rpc('create_order_from_checkout', {
+    p_session_id: session_id,
+    p_customer_email: checkout.customer_email,
+    p_customer_phone: checkout.customer_phone,
+    p_shipping_address: checkout.shipping_address,
+    p_payment_method: checkout.payment_method,
+    p_total_amount: checkout.total_amount,
+  });
+
+  if (!rpcError && rpcResult && rpcResult.length > 0) {
+    const result = rpcResult[0];
+    return NextResponse.json({
+      data: {
+        order_id: result.order_id,
+        order_number: result.order_number,
+        total: result.total / 100,
+        status: result.status,
+      }
+    }, { status: 201 });
+  }
+
+  // Fallback: multi-step order creation (not atomic, but works without RPC)
+  console.warn('Checkout RPC not available, using multi-step fallback:', rpcError?.message);
+
+  // Create order
   const { data: order, error: orderError } = await admin
     .from('orders')
     .insert({
@@ -198,7 +223,7 @@ async function handleConfirm(body: any) {
     .from('checkout_sessions')
     .update({ status: 'completed' })
     .eq('id', checkout.id);
-  
+
   return NextResponse.json({
     data: {
       order_id: order.id,

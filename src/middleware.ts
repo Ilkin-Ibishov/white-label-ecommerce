@@ -1,18 +1,17 @@
-// Alpha Agent - Task A4: Supabase SSR Middleware
-// Sprint 1.1 | Handles session refresh and route protection
+// Middleware: Session refresh, route protection, role caching
+// Caches user role in a cookie to avoid DB query per request.
 
 import { createServerClient } from '@supabase/ssr';
 import { NextResponse, type NextRequest } from 'next/server';
 
+const ROLE_COOKIE = 'x-user-role';
+const ROLE_COOKIE_MAX_AGE = 60 * 5; // 5 minutes
+
 export async function middleware(request: NextRequest) {
-  // Create initial response
   const response = NextResponse.next({
-    request: {
-      headers: request.headers,
-    },
+    request: { headers: request.headers },
   });
 
-  // Create Supabase client with cookie handling
   const supabase = createServerClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
@@ -22,21 +21,10 @@ export async function middleware(request: NextRequest) {
           return request.cookies.get(name)?.value;
         },
         set(name: string, value: string, options: { path?: string; maxAge?: number; domain?: string; httpOnly?: boolean; secure?: boolean; sameSite?: 'strict' | 'lax' | 'none' }) {
-          // Set cookie on the response
-          response.cookies.set({
-            name,
-            value,
-            ...options,
-          });
+          response.cookies.set({ name, value, ...options });
         },
         remove(name: string, options: { path?: string; domain?: string; httpOnly?: boolean; secure?: boolean; sameSite?: 'strict' | 'lax' | 'none' }) {
-          // Remove cookie by setting maxAge to 0
-          response.cookies.set({
-            name,
-            value: '',
-            ...options,
-            maxAge: 0,
-          });
+          response.cookies.set({ name, value: '', ...options, maxAge: 0 });
         },
       },
     }
@@ -45,29 +33,47 @@ export async function middleware(request: NextRequest) {
   // Refresh session if expired
   const { data: { session }, error } = await supabase.auth.getSession();
 
-  // Handle auth errors by clearing session
   if (error) {
     console.error('Auth error in middleware:', error.message);
     response.cookies.delete('sb-access-token');
     response.cookies.delete('sb-refresh-token');
+    response.cookies.set({ name: ROLE_COOKIE, value: '', maxAge: 0 });
   }
 
-  // Get user role if authenticated
+  // Get user role: cookie first, DB fallback
   let userRole: string | null = null;
+
   if (session?.user) {
-    const { data: userData } = await supabase
-      .from('users')
-      .select('role')
-      .eq('id', session.user.id)
-      .single();
-    userRole = userData?.role || null;
+    const cachedRole = request.cookies.get(ROLE_COOKIE)?.value;
+    if (cachedRole && ['customer', 'admin', 'editor', 'viewer'].includes(cachedRole)) {
+      userRole = cachedRole;
+    } else {
+      const { data: userData } = await supabase
+        .from('users')
+        .select('role')
+        .eq('id', session.user.id)
+        .single();
+      userRole = userData?.role || null;
+      // Cache role in cookie
+      if (userRole) {
+        response.cookies.set({
+          name: ROLE_COOKIE,
+          value: userRole,
+          maxAge: ROLE_COOKIE_MAX_AGE,
+          path: '/',
+          sameSite: 'lax',
+          httpOnly: true,
+        });
+      }
+    }
+  } else {
+    // No session — clear role cookie
+    response.cookies.set({ name: ROLE_COOKIE, value: '', maxAge: 0 });
   }
 
-  // Route protection logic
+  // Route protection
   const pathname = request.nextUrl.pathname;
 
-  // Admin routes require admin role. The /admin/login page is itself an
-  // admin route file but must be reachable when unauthenticated.
   if (pathname.startsWith('/admin') && !pathname.startsWith('/admin/login')) {
     if (!session || userRole !== 'admin') {
       const loginUrl = new URL('/admin/login', request.url);
@@ -76,7 +82,6 @@ export async function middleware(request: NextRequest) {
     }
   }
 
-  // API admin routes require admin role
   if (pathname.startsWith('/api/admin')) {
     if (!session || userRole !== 'admin') {
       return NextResponse.json(
@@ -86,7 +91,6 @@ export async function middleware(request: NextRequest) {
     }
   }
 
-  // Protected API routes require authentication
   if (pathname.startsWith('/api/user/')) {
     if (!session) {
       return NextResponse.json(
@@ -96,7 +100,7 @@ export async function middleware(request: NextRequest) {
     }
   }
 
-  // Redirect authenticated admins away from the login page
+  // Redirect authenticated admins away from login
   if (pathname === '/admin/login' && session && userRole === 'admin') {
     return NextResponse.redirect(new URL('/admin/dashboard', request.url));
   }
@@ -104,18 +108,8 @@ export async function middleware(request: NextRequest) {
   return response;
 }
 
-// Configure matcher for middleware routes
 export const config = {
   matcher: [
-    /*
-     * Match all request paths except:
-     * - _next/static (static files)
-     * - _next/image (image optimization files)
-     * - favicon.ico (favicon file)
-     * - public folder
-     * - api/auth/* (auth API routes)
-     * - api/admin/setup (one-time setup route)
-     */
-    '/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$|api/auth/|api/admin/setup).*)',
+    '/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$|api/auth/).*)',
   ],
 };
