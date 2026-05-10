@@ -154,7 +154,7 @@ export default function LoginForm() {
         
         <form onSubmit={handleSubmit}>
           <div style={{ marginBottom: '16px' }}>
-            <label style={{
+            <label htmlFor="email" style={{
               display: 'block',
               fontSize: '14px',
               fontWeight: '500',
@@ -183,7 +183,7 @@ export default function LoginForm() {
           </div>
           
           <div style={{ marginBottom: '20px' }}>
-            <label style={{
+            <label htmlFor="password" style={{
               display: 'block',
               fontSize: '14px',
               fontWeight: '500',
