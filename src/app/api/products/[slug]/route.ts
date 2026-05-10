@@ -75,46 +75,9 @@ export async function GET(
       );
     }
     
-    // Fetch category separately
-    let category = null;
-    if (product.category_id) {
-      const { data: cat } = await supabase
-        .from('categories')
-        .select('id, slug, name_en, name_az, name_ru')
-        .eq('id', product.category_id)
-        .single();
-      category = cat;
-    }
-
-    // Fetch product images separately
-    const { data: images } = await supabase
-      .from('product_images')
-      .select('id, url, alt_text, sort_order, is_primary')
-      .eq('product_id', product.id)
-      .order('sort_order', { ascending: true });
-
-    // Get related products (same category, excluding current)
-    let relatedProducts: any[] = [];
-    if (product.category_id) {
-      const { data: related } = await supabase
-        .from('products')
-        .select('id, slug, name_en, price')
-        .eq('category_id', product.category_id)
-        .gt('stock_available', 0)
-        .neq('id', product.id)
-        .limit(4);
-      
-      relatedProducts = related || [];
-    }
-    
     return NextResponse.json(
       {
-        data: {
-          ...product,
-          category,
-          images: images || [],
-          related_products: relatedProducts,
-        },
+        data: product,
       },
       { status: 200 }
     );
