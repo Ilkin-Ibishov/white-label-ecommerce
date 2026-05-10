@@ -73,11 +73,16 @@ export async function POST(request: Request) {
     const supabase = await createClient();
     
     // Check if product exists
-    const { data: product } = await supabase
+    const { data: product, error: productError } = await supabase
       .from('products')
       .select('id, stock_available')
       .eq('id', product_id)
       .single();
+    
+    if (productError) {
+      console.error('Product lookup error:', productError);
+      return NextResponse.json({ error: { code: 'PRODUCT_ERROR', message: productError.message } }, { status: 500 });
+    }
     
     if (!product) {
       return NextResponse.json({ error: { code: 'NOT_FOUND', message: 'Product not found' } }, { status: 404 });
@@ -104,7 +109,10 @@ export async function POST(request: Request) {
         .select()
         .single();
       
-      if (error) throw error;
+      if (error) {
+        console.error('Cart update error:', error);
+        return NextResponse.json({ error: { code: 'UPDATE_ERROR', message: error.message } }, { status: 500 });
+      }
       return NextResponse.json({ data, message: 'Quantity updated' });
     } else {
       // Insert new
@@ -114,7 +122,10 @@ export async function POST(request: Request) {
         .select()
         .single();
       
-      if (error) throw error;
+      if (error) {
+        console.error('Cart insert error:', error);
+        return NextResponse.json({ error: { code: 'INSERT_ERROR', message: error.message } }, { status: 500 });
+      }
       return NextResponse.json({ data, message: 'Added to cart' }, { status: 201 });
     }
     
