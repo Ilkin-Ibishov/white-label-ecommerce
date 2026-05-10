@@ -1,0 +1,38 @@
+{
+  "agent": "alpha",
+  "role": "Backend API - Admin Product Management",
+  "sprint": "1.3",
+  "stage": "03-admin-products",
+  "handoff_date": "2026-05-10",
+  "from": "02-cart-checkout",
+  "context_file": "stages/alpha/03-admin-products/context.json",
+  "status": "ready_to_start",
+  "tasks_to_complete": [
+    "A12: Admin Products List API",
+    "A13: Admin Product Create API",
+    "A14: Admin Product Update API",
+    "A15: Admin Product Delete API",
+    "A16: Admin Categories CRUD API",
+    "A17: Image Upload Handler"
+  ],
+  "available_apis": [
+    "/api/products - Existing public product listing",
+    "/api/cart - Cart management (reference for patterns)",
+    "/api/checkout - Checkout flow (reference for patterns)"
+  ],
+  "db_tables_ready": [
+    "products - 2,021 items with full schema",
+    "categories - 6 hierarchical categories",
+    "product_images - Image storage with is_primary flag"
+  ],
+  "dependencies": {
+    "from_alpha": "Sprint 1.2 cart/checkout APIs - Use same patterns",
+    "from_beta": "Products schema and seed data ready",
+    "from_gamma": "Admin layout exists from Sprint 1.1"
+  },
+  "session_notes": {
+    "url": "https://white-label-ecommerce-git-main-ilkin-ibishovs-projects.vercel.app",
+    "admin_user": "admin@whitelabel.dev / admin123456",
+    "schema_notes": "Use name_en, price (numeric), stock_available. No status column on products."
+  }
+}

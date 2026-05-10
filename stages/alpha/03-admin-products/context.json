@@ -1,0 +1,96 @@
+{
+  "agent": "alpha",
+  "sprint": "1.3",
+  "stage": "03-admin-products",
+  "title": "Admin Product Management APIs",
+  "started": "2026-05-10T13:05:00+04:00",
+  "handoff_from": "alpha-02-cart-checkout",
+  "tasks": [
+    {
+      "id": "A12",
+      "title": "Admin Products List API",
+      "description": "GET /api/admin/products - List all products with pagination, search, filters",
+      "acceptance_criteria": [
+        "Returns paginated product list",
+        "Supports search by name",
+        "Supports filter by category, stock status, featured",
+        "Admin-only access (middleware check)",
+        "Include product images in response"
+      ],
+      "files": ["src/app/api/admin/products/route.ts"]
+    },
+    {
+      "id": "A13",
+      "title": "Admin Product Create API",
+      "description": "POST /api/admin/products - Create new product with images",
+      "acceptance_criteria": [
+        "Validates required fields (name_en, price, category_id)",
+        "Creates product in products table",
+        "Handles multiple image uploads",
+        "Generates slug automatically",
+        "Admin-only access"
+      ],
+      "files": ["src/app/api/admin/products/route.ts"]
+    },
+    {
+      "id": "A14",
+      "title": "Admin Product Update API",
+      "description": "PUT /api/admin/products/[id] - Update existing product",
+      "acceptance_criteria": [
+        "Updates product fields",
+        "Handles image additions/removals",
+        "Validates input data",
+        "Admin-only access"
+      ],
+      "files": ["src/app/api/admin/products/[id]/route.ts"]
+    },
+    {
+      "id": "A15",
+      "title": "Admin Product Delete API",
+      "description": "DELETE /api/admin/products/[id] - Soft delete product",
+      "acceptance_criteria": [
+        "Sets product status to 'deleted' or removes from DB",
+        "Removes associated cart items",
+        "Admin-only access"
+      ],
+      "files": ["src/app/api/admin/products/[id]/route.ts"]
+    },
+    {
+      "id": "A16",
+      "title": "Admin Categories CRUD API",
+      "description": "Full CRUD for category management",
+      "acceptance_criteria": [
+        "GET /api/admin/categories - List all categories",
+        "POST /api/admin/categories - Create category",
+        "PUT /api/admin/categories/[id] - Update category",
+        "DELETE /api/admin/categories/[id] - Delete category",
+        "Handles parent-child relationships"
+      ],
+      "files": ["src/app/api/admin/categories/route.ts"]
+    },
+    {
+      "id": "A17",
+      "title": "Image Upload Handler",
+      "description": "API for handling product image uploads",
+      "acceptance_criteria": [
+        "POST /api/admin/upload - Accepts multipart/form-data",
+        "Validates image types (jpg, png, webp)",
+        "Resizes images if needed",
+        "Returns image URL for storage in product_images table"
+      ],
+      "files": ["src/app/api/admin/upload/route.ts"]
+    }
+  ],
+  "db_tables": ["products", "categories", "product_images"],
+  "dependencies": [
+    "Existing products table schema",
+    "Admin authentication middleware",
+    "RYS policies for admin access"
+  ],
+  "notes": [
+    "Use existing products table structure (name_en, price, stock_available, etc.)",
+    "Product images stored in product_images table with is_primary flag",
+    "Categories support parent_id for hierarchy",
+    "All admin endpoints must verify admin role"
+  ]
+}

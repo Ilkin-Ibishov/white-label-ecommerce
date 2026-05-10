@@ -1,0 +1,97 @@
+{
+  "agent": "beta",
+  "sprint": "1.3",
+  "stage": "03-admin-analytics",
+  "title": "Admin Analytics & Order Management",
+  "started": "2026-05-10T13:05:00+04:00",
+  "handoff_from": "beta-02-orders",
+  "tasks": [
+    {
+      "id": "B10",
+      "title": "Admin Orders List API",
+      "description": "GET /api/admin/orders - Enhanced order listing for admin",
+      "acceptance_criteria": [
+        "Returns all orders with pagination",
+        "Supports filter by status (pending, confirmed, etc.)",
+        "Supports filter by date range",
+        "Supports search by order number or customer email",
+        "Includes order items in response",
+        "Admin-only access"
+      ],
+      "files": ["src/app/api/admin/orders/route.ts"]
+    },
+    {
+      "id": "B11",
+      "title": "Admin Order Detail API",
+      "description": "GET /api/admin/orders/[id] - Full order details",
+      "acceptance_criteria": [
+        "Returns complete order with items",
+        "Includes customer information",
+        "Includes shipping address",
+        "Includes payment method",
+        "Admin-only access"
+      ],
+      "files": ["src/app/api/admin/orders/[id]/route.ts"]
+    },
+    {
+      "id": "B12",
+      "title": "Order Status Update API",
+      "description": "PUT /api/admin/orders/[id]/status - Update order status",
+      "acceptance_criteria": [
+        "Updates order status (pending → confirmed → processing → shipped → delivered)",
+        "Validates status transitions",
+        "Adds status change timestamp",
+        "Admin-only access"
+      ],
+      "files": ["src/app/api/admin/orders/[id]/status/route.ts"]
+    },
+    {
+      "id": "B13",
+      "title": "Dashboard Analytics API",
+      "description": "GET /api/admin/analytics - Dashboard statistics",
+      "acceptance_criteria": [
+        "Returns total sales (today, week, month)",
+        "Returns order counts by status",
+        "Returns top selling products",
+        "Returns recent orders (last 5)",
+        "Admin-only access"
+      ],
+      "files": ["src/app/api/admin/analytics/route.ts"]
+    },
+    {
+      "id": "B14",
+      "title": "Sales Chart Data API",
+      "description": "GET /api/admin/analytics/sales - Time-series sales data",
+      "acceptance_criteria": [
+        "Returns sales data for charting (daily/weekly/monthly)",
+        "Accepts date range parameters",
+        "Returns revenue and order count",
+        "Admin-only access"
+      ],
+      "files": ["src/app/api/admin/analytics/sales/route.ts"]
+    },
+    {
+      "id": "B15",
+      "title": "Low Stock Alert API",
+      "description": "GET /api/admin/alerts/low-stock - Products with low inventory",
+      "acceptance_criteria": [
+        "Returns products where stock_available < threshold (default 10)",
+        "Sorted by stock level (lowest first)",
+        "Admin-only access"
+      ],
+      "files": ["src/app/api/admin/alerts/low-stock/route.ts"]
+    }
+  ],
+  "db_tables": ["orders", "order_items", "products"],
+  "dependencies": [
+    "Existing orders and order_items tables",
+    "products table for stock tracking",
+    "Admin authentication"
+  ],
+  "notes": [
+    "Leverage existing orders schema from Sprint 1.2",
+    "Analytics queries should be optimized for dashboard performance",
+    "Consider caching for frequently accessed analytics data",
+    "Low stock threshold should be configurable"
+  ]
+}

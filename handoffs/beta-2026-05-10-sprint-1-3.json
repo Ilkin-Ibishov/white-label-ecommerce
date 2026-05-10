@@ -1,0 +1,38 @@
+{
+  "agent": "beta",
+  "role": "Backend API - Admin Analytics & Order Management",
+  "sprint": "1.3",
+  "stage": "03-admin-analytics",
+  "handoff_date": "2026-05-10",
+  "from": "02-orders",
+  "context_file": "stages/beta/03-admin-analytics/context.json",
+  "status": "ready_to_start",
+  "tasks_to_complete": [
+    "B10: Admin Orders List API",
+    "B11: Admin Order Detail API",
+    "B12: Order Status Update API",
+    "B13: Dashboard Analytics API",
+    "B14: Sales Chart Data API",
+    "B15: Low Stock Alert API"
+  ],
+  "available_apis": [
+    "/api/orders - Existing orders API from Sprint 1.2",
+    "/api/categories - Category tree API"
+  ],
+  "db_tables_ready": [
+    "orders - Empty but schema ready",
+    "order_items - Linked to orders",
+    "products - 2,021 items for stock tracking",
+    "categories - 6 categories"
+  ],
+  "dependencies": {
+    "from_alpha": "Cart/checkout APIs generate orders",
+    "from_beta": "Orders schema from Sprint 1.2",
+    "from_gamma": "Storefront generates orders"
+  },
+  "analytics_requirements": {
+    "sales_metrics": ["daily", "weekly", "monthly"],
+    "order_statuses": ["pending", "confirmed", "processing", "shipped", "delivered", "cancelled"],
+    "low_stock_threshold": 10
+  }
+}

@@ -1,0 +1,129 @@
+{
+  "agent": "gamma",
+  "sprint": "1.3",
+  "stage": "03-admin-ui",
+  "title": "Admin Dashboard UI",
+  "started": "2026-05-10T13:05:00+04:00",
+  "handoff_from": "gamma-02-ui",
+  "tasks": [
+    {
+      "id": "G12",
+      "title": "Admin Layout with Navigation",
+      "description": "Main admin layout with sidebar navigation",
+      "acceptance_criteria": [
+        "Sidebar with menu items: Dashboard, Products, Orders, Categories",
+        "Header with user info and logout",
+        "Collapsible sidebar for mobile",
+        "Active state highlighting"
+      ],
+      "files": ["src/app/(admin)/layout.tsx", "src/components/admin/Sidebar.tsx"]
+    },
+    {
+      "id": "G13",
+      "title": "Dashboard Overview Page",
+      "description": "Admin dashboard with key metrics",
+      "acceptance_criteria": [
+        "Stat cards: Total Sales, Orders Today, Pending Orders, Low Stock Items",
+        "Recent orders table (last 5)",
+        "Quick actions: Add Product, View Orders",
+        "Responsive grid layout"
+      ],
+      "files": ["src/app/(admin)/dashboard/page.tsx"]
+    },
+    {
+      "id": "G14",
+      "title": "Product List Page",
+      "description": "Admin product management list view",
+      "acceptance_criteria": [
+        "Table with columns: Image, Name, Price, Stock, Category, Status, Actions",
+        "Pagination support",
+        "Search by name",
+        "Filter by category, stock status",
+        "Bulk actions (delete selected)",
+        "Edit/Delete buttons per row"
+      ],
+      "files": ["src/app/(admin)/products/page.tsx"]
+    },
+    {
+      "id": "G15",
+      "title": "Product Create/Edit Form",
+      "description": "Form for adding or editing products",
+      "acceptance_criteria": [
+        "Form fields: Name (EN/AZ/RU), Description, Price, Original Price, Stock",
+        "Category dropdown",
+        "Image upload with preview",
+        "Featured/On Sale toggles",
+        "Validation with error messages",
+        "Submit creates/updates product via API"
+      ],
+      "files": ["src/app/(admin)/products/new/page.tsx", "src/app/(admin)/products/[id]/edit/page.tsx"]
+    },
+    {
+      "id": "G16",
+      "title": "Category Management Page",
+      "description": "CRUD interface for categories",
+      "acceptance_criteria": [
+        "List all categories in tree view",
+        "Add new category form",
+        "Edit category modal",
+        "Delete category with confirmation",
+        "Handle parent-child relationships"
+      ],
+      "files": ["src/app/(admin)/categories/page.tsx"]
+    },
+    {
+      "id": "G17",
+      "title": "Orders List Page",
+      "description": "Admin order management interface",
+      "acceptance_criteria": [
+        "Table with columns: Order #, Date, Customer, Total, Status, Actions",
+        "Status filter dropdown",
+        "Date range filter",
+        "Search by order number or email",
+        "Pagination",
+        "View details button"
+      ],
+      "files": ["src/app/(admin)/orders/page.tsx"]
+    },
+    {
+      "id": "G18",
+      "title": "Order Detail Page",
+      "description": "Full order view with status management",
+      "acceptance_criteria": [
+        "Order info: Number, Date, Status, Customer, Email, Phone",
+        "Shipping address display",
+        "Order items list with images",
+        "Status update dropdown",
+        "Total amount breakdown",
+        "Print order button"
+      ],
+      "files": ["src/app/(admin)/orders/[id]/page.tsx"]
+    },
+    {
+      "id": "G19",
+      "title": "Sales Analytics Charts",
+      "description": "Visual analytics on dashboard",
+      "acceptance_criteria": [
+        "Revenue chart (line/bar chart by day/week/month)",
+        "Orders count chart",
+        "Top products list",
+        "Date range selector",
+        "Uses recharts or similar library"
+      ],
+      "files": ["src/components/admin/AnalyticsCharts.tsx"]
+    }
+  ],
+  "ui_libraries": ["shadcn/ui", "TanStack Query", "recharts", "lucide-react"],
+  "dependencies": [
+    "All Alpha and Beta admin APIs must be available",
+    "Admin authentication working",
+    "Existing (admin) layout structure"
+  ],
+  "notes": [
+    "Use existing shadcn/ui components (Table, Card, Dialog, Form, etc.)",
+    "Follow existing admin authentication pattern from Sprint 1.1",
+    "All data fetching via TanStack Query",
+    "Toast notifications for success/error feedback",
+    "Responsive design for tablet/desktop admin use"
+  ]
+}
