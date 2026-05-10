@@ -27,33 +27,37 @@ export async function GET(
     
     const supabase = await createClient();
     
-    // Fetch product with category and images
+    // Fetch product with category and images (live schema)
     const { data: product, error } = await supabase
       .from('products')
       .select(
         `
         id,
         slug,
-        title,
-        description,
-        short_description,
-        price_cents,
-        compare_at_price_cents,
-        inventory_count,
-        inventory_track,
-        weight_grams,
+        name_en,
+        name_az,
+        name_ru,
+        description_en,
+        description_az,
+        description_ru,
+        price,
+        original_price,
+        stock_available,
         is_featured,
-        status,
-        seo_title,
-        seo_description,
+        is_on_sale,
+        is_top_rated,
+        is_deal_of_day,
+        rating,
+        review_count,
+        image_url,
         created_at,
         updated_at,
-        category:categories(id, slug, name, description),
+        category:categories(id, slug, name_en, name_az, name_ru),
         images:product_images(id, url, alt_text, sort_order, is_primary)
       `
       )
       .eq('slug', slug)
-      .eq('status', 'active')
+      .gt('stock_available', 0)
       .single();
     
     if (error) {
@@ -78,9 +82,9 @@ export async function GET(
       const categoryId = (product.category as any).id;
       const { data: related } = await supabase
         .from('products')
-        .select('id, slug, title, price_cents')
+        .select('id, slug, name_en, price')
         .eq('category_id', categoryId)
-        .eq('status', 'active')
+        .gt('stock_available', 0)
         .neq('id', product.id)
         .limit(4);
       

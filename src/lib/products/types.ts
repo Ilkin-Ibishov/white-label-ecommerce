@@ -9,31 +9,50 @@ export interface ProductImage {
 export interface ProductCategory {
   id: string;
   slug: string;
-  name: string;
-  description?: string | null;
+  name_en: string;
+  name_az: string;
+  name_ru: string;
+  name?: string; // Computed from name_en for convenience
+  icon?: string | null;
+  parent_id?: string | null;
+  sort_order?: number;
 }
 
 export interface ProductSummary {
   id: string;
   slug: string;
-  title: string;
+  name_en: string;
+  name_az?: string | null;
+  name_ru?: string | null;
+  // Legacy aliases for compatibility
+  title?: string;
   short_description?: string | null;
-  price_cents: number;
+  description_en?: string | null;
+  price: number;
+  original_price?: number | null;
+  // Legacy price aliases
+  price_cents?: number;
   compare_at_price_cents?: number | null;
-  inventory_count?: number | null;
-  is_featured?: boolean | null;
-  status?: string;
+  stock_available: number;
+  stock_sold?: number;
+  // Legacy inventory alias
+  inventory_count?: number;
+  is_featured?: boolean;
+  is_on_sale?: boolean;
+  is_top_rated?: boolean;
+  is_deal_of_day?: boolean;
+  rating?: number;
+  review_count?: number;
+  image_url?: string | null;
   images?: ProductImage[] | null;
   category?: ProductCategory | null;
+  created_at?: string;
 }
 
 export interface ProductDetail extends ProductSummary {
-  description?: string | null;
-  inventory_track?: boolean | null;
-  weight_grams?: number | null;
-  seo_title?: string | null;
-  seo_description?: string | null;
-  related_products?: Array<Pick<ProductSummary, 'id' | 'slug' | 'title' | 'price_cents'>>;
+  description_az?: string | null;
+  description_ru?: string | null;
+  related_products?: Array<Pick<ProductSummary, 'id' | 'slug' | 'name_en' | 'price'>>;
 }
 
 export interface ProductsListMeta {

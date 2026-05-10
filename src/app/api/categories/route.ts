@@ -8,11 +8,10 @@ export async function GET() {
   try {
     const supabase = await createClient();
     
-    // Fetch all active categories
+    // Fetch all categories (live schema: name_en, name_az, name_ru, no is_active)
     const { data: categories, error } = await supabase
       .from('categories')
-      .select('id, slug, name, description, parent_id, sort_order, is_active')
-      .eq('is_active', true)
+      .select('id, slug, name_en, name_az, name_ru, icon, parent_id, sort_order')
       .order('parent_id', { ascending: true, nullsFirst: true })
       .order('sort_order', { ascending: true });
     
@@ -28,10 +27,11 @@ export async function GET() {
     const categoryMap = new Map();
     const rootCategories: any[] = [];
     
-    // First pass: create map
+    // First pass: create map (use name_en as display name)
     categories?.forEach(cat => {
       categoryMap.set(cat.id, {
         ...cat,
+        name: cat.name_en,
         children: [],
       });
     });
@@ -54,19 +54,12 @@ export async function GET() {
     const productCounts: Record<string, number> = {};
     
     if (categoryIds.length > 0) {
-      const { data: counts } = await supabase
-        .from('products')
-        .select('category_id, count', { count: 'exact' })
-        .in('category_id', categoryIds)
-        .eq('status', 'active');
-      
-      // Note: Supabase returns grouped counts differently
-      // For now, we'll use a simpler approach
+      // Live schema: products have stock_available, not status
       const { data: products } = await supabase
         .from('products')
         .select('category_id')
         .in('category_id', categoryIds)
-        .eq('status', 'active');
+        .gt('stock_available', 0);
       
       products?.forEach(p => {
         if (p.category_id) {

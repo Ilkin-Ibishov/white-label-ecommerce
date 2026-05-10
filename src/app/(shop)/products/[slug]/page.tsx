@@ -17,9 +17,8 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   if (!product) return { title: 'Product not found' };
 
   return {
-    title: product.seo_title || product.title,
-    description:
-      product.seo_description || product.short_description || product.title,
+    title: product.name_en,
+    description: product.description_en || product.name_en,
   };
 }
 
@@ -34,13 +33,10 @@ export default async function ProductDetailPage({ params }: PageProps) {
     return (a.sort_order ?? 0) - (b.sort_order ?? 0);
   });
 
-  const inventory = product.inventory_count ?? 0;
-  const tracksInventory = product.inventory_track !== false;
-  const inStock = !tracksInventory || inventory > 0;
-  const maxQuantity = tracksInventory ? inventory : null;
-  const onSale =
-    typeof product.compare_at_price_cents === 'number' &&
-    product.compare_at_price_cents > product.price_cents;
+  const inventory = product.stock_available ?? 0;
+  const inStock = inventory > 0;
+  const maxQuantity = inventory;
+  const onSale = product.is_on_sale || (product.original_price && product.original_price > product.price);
 
   return (
     <div className="container mx-auto px-4 py-8">
@@ -55,7 +51,7 @@ export default async function ProductDetailPage({ params }: PageProps) {
               href={`/category/${product.category.slug}`}
               className="hover:underline"
             >
-              {product.category.name}
+              {product.category.name_en}
             </Link>
             {' / '}
           </>
@@ -64,27 +60,27 @@ export default async function ProductDetailPage({ params }: PageProps) {
       </nav>
 
       <div className="grid gap-8 lg:grid-cols-2">
-        <ProductGallery images={images} title={product.title} />
+        <ProductGallery images={images} title={product.name_en} />
 
         <div className="flex flex-col gap-5">
           <div>
             <h1 className="text-3xl font-bold tracking-tight text-slate-900 dark:text-white">
-              {product.title}
+              {product.name_en}
             </h1>
-            {product.short_description && (
+            {product.description_en && (
               <p className="mt-2 text-slate-600 dark:text-slate-300">
-                {product.short_description}
+                {product.description_en.slice(0, 200)}...
               </p>
             )}
           </div>
 
           <div className="flex items-baseline gap-3">
             <span className="text-3xl font-semibold text-slate-900 dark:text-white">
-              {formatPriceCents(product.price_cents)}
+              {product.price} AZN
             </span>
-            {onSale && (
+            {onSale && product.original_price && (
               <span className="text-lg text-slate-500 line-through dark:text-slate-400">
-                {formatPriceCents(product.compare_at_price_cents ?? 0)}
+                {product.original_price} AZN
               </span>
             )}
           </div>
@@ -97,7 +93,7 @@ export default async function ProductDetailPage({ params }: PageProps) {
             }
           >
             {inStock
-              ? tracksInventory && inventory <= 5
+              ? inventory <= 5
                 ? `Only ${inventory} left in stock`
                 : 'In stock'
               : 'Out of stock'}
@@ -109,13 +105,13 @@ export default async function ProductDetailPage({ params }: PageProps) {
             maxQuantity={maxQuantity}
           />
 
-          {product.description && (
+          {product.description_en && (
             <Card className="p-5">
               <h2 className="mb-2 text-sm font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">
                 Description
               </h2>
               <p className="whitespace-pre-line text-sm text-slate-700 dark:text-slate-200">
-                {product.description}
+                {product.description_en}
               </p>
             </Card>
           )}
@@ -135,10 +131,10 @@ export default async function ProductDetailPage({ params }: PageProps) {
                 className="rounded-lg border border-slate-200 bg-white p-4 transition-shadow hover:shadow-sm dark:border-slate-800 dark:bg-slate-950"
               >
                 <p className="line-clamp-2 text-sm font-medium text-slate-900 dark:text-white">
-                  {rp.title}
+                  {rp.name_en}
                 </p>
                 <p className="mt-2 text-sm text-slate-700 dark:text-slate-300">
-                  {formatPriceCents(rp.price_cents)}
+                  {rp.price} AZN
                 </p>
               </Link>
             ))}

@@ -7,26 +7,31 @@ import type {
 } from './types';
 
 const PRODUCT_SUMMARY_FIELDS =
-  'id, slug, title, short_description, price_cents, compare_at_price_cents, inventory_count, is_featured, status, created_at, category:categories(id, slug, name), images:product_images(id, url, alt_text, sort_order, is_primary)';
+  'id, slug, name_en, name_az, name_ru, price, original_price, stock_available, stock_sold, is_featured, is_on_sale, is_top_rated, rating, review_count, image_url, created_at, category:categories(id, slug, name_en, name_az, name_ru), images:product_images(id, url, alt_text, sort_order, is_primary)';
 
 const PRODUCT_DETAIL_FIELDS = `
   id,
   slug,
-  title,
-  description,
-  short_description,
-  price_cents,
-  compare_at_price_cents,
-  inventory_count,
-  inventory_track,
-  weight_grams,
+  name_en,
+  name_az,
+  name_ru,
+  description_en,
+  description_az,
+  description_ru,
+  price,
+  original_price,
+  stock_available,
+  stock_sold,
   is_featured,
-  status,
-  seo_title,
-  seo_description,
+  is_on_sale,
+  is_top_rated,
+  is_deal_of_day,
+  rating,
+  review_count,
+  image_url,
   created_at,
   updated_at,
-  category:categories(id, slug, name, description),
+  category:categories(id, slug, name_en, name_az, name_ru),
   images:product_images(id, url, alt_text, sort_order, is_primary)
 `;
 
@@ -80,7 +85,7 @@ export async function listProducts(params: ProductListParams = {}): Promise<Prod
     let query = supabase
       .from('products')
       .select(PRODUCT_SUMMARY_FIELDS, { count: 'exact' })
-      .eq('status', 'active');
+      .gt('stock_available', 0);
 
     if (params.category && params.category !== 'all') {
       const { data: categoryRow } = await supabase
@@ -106,21 +111,21 @@ export async function listProducts(params: ProductListParams = {}): Promise<Prod
     }
 
     if (typeof params.minPrice === 'number') {
-      query = query.gte('price_cents', params.minPrice);
+      query = query.gte('price', params.minPrice);
     }
     if (typeof params.maxPrice === 'number') {
-      query = query.lte('price_cents', params.maxPrice);
+      query = query.lte('price', params.maxPrice);
     }
     if (params.search) {
-      query = query.ilike('title', `%${params.search}%`);
+      query = query.ilike('name_en', `%${params.search}%`);
     }
 
     switch (sort) {
       case 'price_asc':
-        query = query.order('price_cents', { ascending: true });
+        query = query.order('price', { ascending: true });
         break;
       case 'price_desc':
-        query = query.order('price_cents', { ascending: false });
+        query = query.order('price', { ascending: false });
         break;
       case 'newest':
         query = query.order('created_at', { ascending: false });
@@ -164,11 +169,10 @@ export async function getCategoryBySlug(slug: string) {
     const supabase = await createClient();
     const { data } = await supabase
       .from('categories')
-      .select('id, slug, name, description')
+      .select('id, slug, name_en, name_az, name_ru, icon, parent_id, sort_order')
       .eq('slug', slug)
-      .eq('is_active', true)
       .single();
-    return data ?? null;
+    return data ? { ...data, name: data.name_en } : null;
   } catch {
     return null;
   }
