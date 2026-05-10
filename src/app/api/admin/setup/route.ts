@@ -1,52 +1,50 @@
-// One-time admin setup - creates admin user with password
+// One-time admin setup - creates admin user via signup API
 // DELETE THIS FILE AFTER FIRST USE
-import { createClient } from '@/lib/supabase/server';
 import { NextResponse } from 'next/server';
 
 const ADMIN_EMAIL = 'admin@example.com';
-const ADMIN_PASSWORD = 'admin123456'; // Change after first login
+const ADMIN_PASSWORD = 'admin123456';
+const SETUP_SECRET = 'setup-2026'; // Simple secret to prevent abuse
 
-export async function POST() {
+export async function POST(request: Request) {
   try {
-    const supabase = await createClient();
-    
-    // Check if admin already exists
-    const { data: existing } = await supabase
-      .from('users')
-      .select('id')
-      .eq('email', ADMIN_EMAIL)
-      .single();
-    
-    if (existing) {
-      return NextResponse.json({ 
-        message: 'Admin user already exists',
-        email: ADMIN_EMAIL,
-        note: 'Use /login with these credentials'
-      });
+    // Check secret
+    const { secret } = await request.json().catch(() => ({}));
+    if (secret !== SETUP_SECRET) {
+      return NextResponse.json({ error: 'Invalid secret' }, { status: 401 });
     }
-    
-    // Create admin user
-    const { data: authData, error: authError } = await supabase.auth.signUp({
-      email: ADMIN_EMAIL,
-      password: ADMIN_PASSWORD,
-      options: {
-        data: { role: 'admin' }
+
+    // Call the signup API internally
+    const signupResponse = await fetch(
+      `${process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'}/api/auth/signup`,
+      {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          email: ADMIN_EMAIL,
+          password: ADMIN_PASSWORD,
+          role: 'admin'
+        })
       }
-    });
-    
-    if (authError) throw authError;
-    
-    // Force admin role in profile
-    if (authData.user) {
-      await supabase.from('users').upsert({
-        id: authData.user.id,
-        email: ADMIN_EMAIL,
-        role: 'admin',
-        created_at: new Date().toISOString(),
-        updated_at: new Date().toISOString()
-      });
+    );
+
+    const result = await signupResponse.json();
+
+    if (!signupResponse.ok) {
+      // If user exists, maybe just return success
+      if (result.error?.message?.includes('already')) {
+        return NextResponse.json({
+          message: 'Admin user already exists',
+          email: ADMIN_EMAIL,
+          note: 'Try logging in'
+        });
+      }
+      return NextResponse.json(
+        { error: result.error?.message || 'Signup failed' },
+        { status: signupResponse.status }
+      );
     }
-    
+
     return NextResponse.json({
       success: true,
       message: 'Admin user created',
@@ -54,15 +52,12 @@ export async function POST() {
       password: ADMIN_PASSWORD,
       warning: 'DELETE THIS API FILE AFTER USE'
     }, { status: 201 });
-    
-  } catch (error: any) {
-    return NextResponse.json({ 
-      error: error.message 
-    }, { status: 500 });
-  }
-}
 
-// Also allow GET for easy browser access
-export async function GET() {
-  return POST();
+  } catch (error: any) {
+    console.error('Setup error:', error);
+    return NextResponse.json(
+      { error: error.message || 'Setup failed' },
+      { status: 500 }
+    );
+  }
 }
